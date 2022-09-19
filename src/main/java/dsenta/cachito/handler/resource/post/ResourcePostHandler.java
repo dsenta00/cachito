@@ -1,10 +1,10 @@
 package dsenta.cachito.handler.resource.post;
 
+import dsenta.cachito.action.resource.ResourceAction;
 import dsenta.cachito.exception.FailedToFetchEntityException;
 import dsenta.cachito.exception.FailedToPersistEntityException;
 import dsenta.cachito.exception.PostForceIdException;
 import dsenta.cachito.factory.objectinstance.ObjectInstanceFactory;
-import dsenta.cachito.handler.resource.get.ResourceGetHandler;
 import dsenta.cachito.model.entity.Entity;
 import dsenta.cachito.model.fields.FieldsToDisplay;
 import dsenta.cachito.model.objectinstance.ObjectInstance;
@@ -111,7 +111,8 @@ public final class ResourcePostHandler {
 
         if (nonNull(idObj)) {
             long relatedId = UUIDConverter.asLong(idObj.toString());
-            return ResourceGetHandler.getById(resource, relatedId, persistence)
+            return ResourceAction.get().stream()
+                    .getById(resource, relatedId, persistence)
                     .map(entity -> entry(entity.getId(), entity.getObjectInstance()))
                     .orElseThrow(() -> new PostForceIdException(relatedId, resource.getClazz().getResourceInfo().getName()));
         }

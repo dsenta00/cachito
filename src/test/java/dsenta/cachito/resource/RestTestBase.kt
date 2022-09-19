@@ -1,6 +1,6 @@
 package dsenta.cachito.resource
 
-import dsenta.cachito.action.resource.ResourceAlter
+import dsenta.cachito.action.resource.ResourceAction
 import dsenta.cachito.assertions.clazz.ClazzAssert
 import dsenta.cachito.factory.attribute.AttributeFactory
 import dsenta.cachito.handler.resource.drop.ResourceDropHandler
@@ -37,7 +37,7 @@ open class RestTestBase {
         PersistableResource.create(managerClazz, { inputClazz: Clazz?, persistence: Persistence? -> ClazzAssert.canCreate(inputClazz, persistence) }, persistence)
         billClazz = ClazzUtilFactory.createBill()
         PersistableResource.create(billClazz, { inputClazz: Clazz?, persistence: Persistence? -> ClazzAssert.canCreate(inputClazz, persistence) }, persistence)
-        ResourceAlter.alter(
+        ResourceAction.alter().alter(
                 articleClazz,
                 ClazzAlter(
                         List.of(AttributeFactory.asRelationshipOne("bill", -1, billClazz)),

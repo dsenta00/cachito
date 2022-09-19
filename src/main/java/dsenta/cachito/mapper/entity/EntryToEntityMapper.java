@@ -1,9 +1,9 @@
 package dsenta.cachito.mapper.entity;
 
+import dsenta.cachito.action.resource.ResourceAction;
 import dsenta.cachito.exception.DimensionDoesNotExistException;
 import dsenta.cachito.exception.ResourceNotFoundException;
 import dsenta.cachito.factory.entity.EntityFactory;
-import dsenta.cachito.handler.resource.get.ResourceGetHandler;
 import dsenta.cachito.mapper.clazz.ClazzToClonedClazzMapper;
 import dsenta.cachito.model.attribute.DataType;
 import dsenta.cachito.model.entity.Entity;
@@ -70,8 +70,10 @@ public final class EntryToEntityMapper {
             return Optional.of(entity);
         }
 
-        var parentEntity = ResourceGetHandler.getById(PersistableResource.get(parentClazz, persistence), entry.getKey(), persistence)
+        var parentEntity = ResourceAction.get().stream()
+                .getById(PersistableResource.get(parentClazz, persistence), entry.getKey(), persistence)
                 .orElseThrow(() -> new ResourceNotFoundException(parentClazz.getName(), entry.getKey()));
+
         var entity = EntityFactory.create(entry.getKey(), entry.getValue(), resource.getClazz(), parentEntity);
 
         fetchWithRelatedEntities(entity, resource, persistence, inserted);

@@ -1,6 +1,5 @@
 package dsenta.cachito.mapper.group;
 
-import dsenta.cachito.handler.resource.get.ResourceGetHandler;
 import dsenta.cachito.model.fields.FieldsToDisplay;
 import dsenta.cachito.model.group.GroupPeriod;
 import dsenta.cachito.model.group.GroupResult;
@@ -11,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static dsenta.cachito.action.resource.ResourceAction.get;
 import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)
@@ -25,7 +25,7 @@ public final class GroupPeriodMapper {
                 groupResult.getTo(),
                 groupResult.getPeriodName(),
                 groupResult.getIds().stream()
-                        .map(id -> ResourceGetHandler.getById(resource, id, persistence, fieldsToDisplay))
+                        .map(id -> get().stream().getById(resource, id, persistence, fieldsToDisplay))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
                         .collect(Collectors.toList())

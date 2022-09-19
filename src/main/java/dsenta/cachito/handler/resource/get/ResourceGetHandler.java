@@ -25,13 +25,13 @@ import static dsenta.cachito.model.fields.FieldsToDisplay.all;
 
 public final class ResourceGetHandler {
 
-    public static List<Entity> get(Resource resource, Persistence persistence) {
+    public List<Entity> get(Resource resource, Persistence persistence) {
         return get(resource, persistence, all());
     }
 
-    public static List<Entity> get(Resource resource,
-                                   Persistence persistence,
-                                   FieldsToDisplay fieldsToDisplay) {
+    public List<Entity> get(Resource resource,
+                            Persistence persistence,
+                            FieldsToDisplay fieldsToDisplay) {
         return EntryToEntityMapper.toEntityList(
                 resource.getObjectInstances().getDesc(),
                 resource,
@@ -40,10 +40,10 @@ public final class ResourceGetHandler {
         );
     }
 
-    public static List<Entity> get(Resource resource,
-                                   Pagination pagination,
-                                   Persistence persistence,
-                                   FieldsToDisplay fieldsToDisplay) {
+    public List<Entity> get(Resource resource,
+                            Pagination pagination,
+                            Persistence persistence,
+                            FieldsToDisplay fieldsToDisplay) {
         return EntryToEntityMapper.toEntityList(
                 PaginationOfList.getPage(
                         resource.getObjectInstances().getDesc(),
@@ -56,21 +56,21 @@ public final class ResourceGetHandler {
         );
     }
 
-    public static Optional<Entity> getById(Resource resource, Long id, Persistence persistence) {
+    public Optional<Entity> getById(Resource resource, Long id, Persistence persistence) {
         var entry = resource.getObjectInstances().getByKey(id);
         return EntryToEntityMapper.toEntity(entry, resource, persistence);
     }
 
-    public static Optional<Entity> getById(Resource resource, Long id, Persistence persistence, FieldsToDisplay fieldsToDisplay) {
+    public Optional<Entity> getById(Resource resource, Long id, Persistence persistence, FieldsToDisplay fieldsToDisplay) {
         return getById(resource, id, persistence).map(entity -> entity.clonePartially(fieldsToDisplay));
     }
 
-    public static Group get(Resource resource,
-                            GroupBy groupBy,
-                            Filter filter,
-                            LeftJoinWithClazz leftJoin,
-                            Persistence persistence,
-                            FieldsToDisplay fieldsToDisplay) {
+    public Group get(Resource resource,
+                     GroupBy groupBy,
+                     Filter filter,
+                     LeftJoinWithClazz leftJoin,
+                     Persistence persistence,
+                     FieldsToDisplay fieldsToDisplay) {
         Clazz clazz = resource.getClazz();
         List<Long> idsFromLeftJoin = leftJoinFromDimensions(clazz, leftJoin, persistence);
 
@@ -87,11 +87,11 @@ public final class ResourceGetHandler {
         );
     }
 
-    public static Group get(Resource resource,
-                            GroupBy groupBy,
-                            LeftJoinWithClazz leftJoin,
-                            Persistence persistence,
-                            FieldsToDisplay fieldsToDisplay) {
+    public Group get(Resource resource,
+                     GroupBy groupBy,
+                     LeftJoinWithClazz leftJoin,
+                     Persistence persistence,
+                     FieldsToDisplay fieldsToDisplay) {
         Dimensions dimensions = getDimensions(resource, persistence);
         List<Long> idsToRemain = leftJoinFromDimensions(resource.getClazz(), leftJoin, persistence);
 
@@ -104,11 +104,11 @@ public final class ResourceGetHandler {
         );
     }
 
-    public static Group get(Resource resource,
-                            GroupBy groupBy,
-                            Filter filter,
-                            Persistence persistence,
-                            FieldsToDisplay fieldsToDisplay) {
+    public Group get(Resource resource,
+                     GroupBy groupBy,
+                     Filter filter,
+                     Persistence persistence,
+                     FieldsToDisplay fieldsToDisplay) {
         Dimensions dimensions = getDimensions(resource, persistence);
         List<Long> idsToRemain = filterFromDimensions(resource.getClazz(), filter, dimensions, persistence);
 
@@ -121,10 +121,10 @@ public final class ResourceGetHandler {
         );
     }
 
-    public static Group get(Resource resource,
-                            GroupBy groupBy,
-                            Persistence persistence,
-                            FieldsToDisplay fieldsToDisplay) {
+    public Group get(Resource resource,
+                     GroupBy groupBy,
+                     Persistence persistence,
+                     FieldsToDisplay fieldsToDisplay) {
         Dimensions dimensions = getDimensions(resource, persistence);
 
         return new Group(
@@ -135,16 +135,16 @@ public final class ResourceGetHandler {
         );
     }
 
-    public static List<Entity> get(Resource resource,
-                                   Filter filter,
-                                   Persistence persistence) {
+    public List<Entity> get(Resource resource,
+                            Filter filter,
+                            Persistence persistence) {
         return get(resource, filter, persistence, all());
     }
 
-    public static List<Entity> get(Resource resource,
-                                   Filter filter,
-                                   Persistence persistence,
-                                   FieldsToDisplay fieldsToDisplay) {
+    public List<Entity> get(Resource resource,
+                            Filter filter,
+                            Persistence persistence,
+                            FieldsToDisplay fieldsToDisplay) {
         Dimensions dimensions = getDimensions(resource, persistence);
 
         return filterFromDimensions(resource.getClazz(), filter, dimensions, persistence)
@@ -154,11 +154,11 @@ public final class ResourceGetHandler {
                 .collect(Collectors.toList());
     }
 
-    public static List<Entity> get(Resource resource,
-                                   Filter filter,
-                                   LeftJoinWithClazz leftJoin,
-                                   Persistence persistence,
-                                   FieldsToDisplay fieldsToDisplay) {
+    public List<Entity> get(Resource resource,
+                            Filter filter,
+                            LeftJoinWithClazz leftJoin,
+                            Persistence persistence,
+                            FieldsToDisplay fieldsToDisplay) {
         Clazz clazz = resource.getClazz();
         List<Long> idsFromLeftJoin = leftJoinFromDimensions(clazz, leftJoin, persistence);
         Dimensions dimensions = getDimensions(resource, persistence);
@@ -171,12 +171,12 @@ public final class ResourceGetHandler {
                 .collect(Collectors.toList());
     }
 
-    public static List<Entity> get(Resource resource,
-                                   Filter filter,
-                                   LeftJoinWithClazz leftJoin,
-                                   Pagination pagination,
-                                   Persistence persistence,
-                                   FieldsToDisplay fieldsToDisplay) {
+    public List<Entity> get(Resource resource,
+                            Filter filter,
+                            LeftJoinWithClazz leftJoin,
+                            Pagination pagination,
+                            Persistence persistence,
+                            FieldsToDisplay fieldsToDisplay) {
         Clazz clazz = resource.getClazz();
         List<Long> idsFromLeftJoin = leftJoinFromDimensions(clazz, leftJoin, persistence);
         Dimensions dimensions = getDimensions(resource, persistence);
@@ -190,10 +190,10 @@ public final class ResourceGetHandler {
                 .collect(Collectors.toList());
     }
 
-    public static List<Entity> get(Resource resource,
-                                   LeftJoinWithClazz leftJoin,
-                                   Persistence persistence,
-                                   FieldsToDisplay fieldsToDisplay) {
+    public List<Entity> get(Resource resource,
+                            LeftJoinWithClazz leftJoin,
+                            Persistence persistence,
+                            FieldsToDisplay fieldsToDisplay) {
         Clazz clazz = resource.getClazz();
 
         return leftJoinFromDimensions(clazz, leftJoin, persistence)
@@ -203,11 +203,11 @@ public final class ResourceGetHandler {
                 .collect(Collectors.toList());
     }
 
-    public static List<Entity> get(Resource resource,
-                                   LeftJoinWithClazz leftJoin,
-                                   Pagination pagination,
-                                   Persistence persistence,
-                                   FieldsToDisplay fieldsToDisplay) {
+    public List<Entity> get(Resource resource,
+                            LeftJoinWithClazz leftJoin,
+                            Pagination pagination,
+                            Persistence persistence,
+                            FieldsToDisplay fieldsToDisplay) {
         Clazz clazz = resource.getClazz();
         List<Long> filteredIds = leftJoinFromDimensions(clazz, leftJoin, persistence);
 
@@ -218,11 +218,11 @@ public final class ResourceGetHandler {
                 .collect(Collectors.toList());
     }
 
-    public static List<Entity> get(Resource resource,
-                                   Filter filter,
-                                   Pagination pagination,
-                                   Persistence persistence,
-                                   FieldsToDisplay fieldsToDisplay) {
+    public List<Entity> get(Resource resource,
+                            Filter filter,
+                            Pagination pagination,
+                            Persistence persistence,
+                            FieldsToDisplay fieldsToDisplay) {
         Dimensions dimensions = getDimensions(resource, persistence);
         List<Long> filteredIds = filterFromDimensions(resource.getClazz(), filter, dimensions, persistence);
 

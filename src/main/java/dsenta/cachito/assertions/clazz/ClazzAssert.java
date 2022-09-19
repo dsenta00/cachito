@@ -1,10 +1,10 @@
 package dsenta.cachito.assertions.clazz;
 
+import dsenta.cachito.action.resource.ResourceAction;
 import dsenta.cachito.assertions.attribute.AttributeAssert;
 import dsenta.cachito.cache.clazz.ClazzCache;
 import dsenta.cachito.exception.CannotOverrideDataTypeException;
 import dsenta.cachito.exception.IdAlreadyExistsInChildResourceException;
-import dsenta.cachito.handler.resource.get.ResourceGetHandler;
 import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.clazz.Clazz;
 import dsenta.cachito.model.clazzalter.ClazzAlter;
@@ -25,7 +25,7 @@ public final class ClazzAssert {
         ClazzCache.stream().getChildClazzes(clazz).stream()
                 .map(childClazz -> PersistableResource.get(childClazz, persistence))
                 .forEach(childResource -> {
-                    if (ResourceGetHandler.getById(childResource, id, persistence).isPresent()) {
+                    if (ResourceAction.get().stream().getById(childResource, id, persistence).isPresent()) {
                         throw new IdAlreadyExistsInChildResourceException(id, childResource.getClazz().getName());
                     }
                 });

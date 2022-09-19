@@ -2,7 +2,6 @@ package dsenta.cachito.handler.dimension;
 
 import dsenta.cachito.action.resource.ResourceAction;
 import dsenta.cachito.exception.*;
-import dsenta.cachito.handler.resource.get.ResourceGetHandler;
 import dsenta.cachito.mapper.dimension.IdResultFlatMapper;
 import dsenta.cachito.mapper.objectinstance.IntMapper;
 import dsenta.cachito.model.attribute.Attribute;
@@ -110,7 +109,7 @@ public final class DimensionHandler {
                                     FieldsToDisplay.all();
 
                             groupResult.setFrom(
-                                    ResourceGetHandler
+                                    ResourceAction.get().stream()
                                             .getById(relatedResource, id, persistence, fieldsOfAttributeToDisplay)
                                             .orElseThrow(() -> new ResourceNotFoundException(attribute.getClazz().getName(), id))
                             );

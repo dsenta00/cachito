@@ -1,7 +1,7 @@
 package dsenta.cachito.assertions.resource;
 
+import dsenta.cachito.action.resource.ResourceAction;
 import dsenta.cachito.exception.UniqueConstraintException;
-import dsenta.cachito.handler.resource.get.ResourceGetHandler;
 import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.clazz.Clazz;
 import dsenta.cachito.model.entity.Entity;
@@ -37,7 +37,8 @@ public final class ResourceAssert {
 
         var filter = new Filter(andWhereEqualsList);
 
-        ResourceGetHandler.get(resource, filter, persistence)
+        ResourceAction.get().stream()
+                .get(resource, filter, persistence)
                 .stream()
                 .map(Entity::getId)
                 .filter(o -> !o.equals(id))

@@ -6,7 +6,6 @@ import dsenta.cachito.exception.IdAlreadyExistsInChildResourceException;
 import dsenta.cachito.exception.PostForceIdException;
 import dsenta.cachito.exception.UniqueConstraintException;
 import dsenta.cachito.handler.resource.delete.ResourceDeleteHandler;
-import dsenta.cachito.handler.resource.get.ResourceGetHandler;
 import dsenta.cachito.handler.resource.put.ResourcePutHandler;
 import dsenta.cachito.mapper.entity.EntityToStringMapper;
 import dsenta.cachito.model.clazzalter.ClazzAlter;
@@ -34,8 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static dsenta.cachito.action.resource.ResourceAlter.alter;
+;
 import static dsenta.cachito.factory.attribute.AttributeFactory.*;
 import static dsenta.cachito.handler.resource.drop.ResourceDropHandler.drop;
 import static dsenta.cachito.resource.factory.ModelFactory.*;
@@ -233,7 +231,7 @@ class ResourceTest extends RestTestBase {
         assertEquals("123456789", persistedEmployeeAsPerson.getAttributeValue("oib"));
 
         Resource peopleResource = PersistableResource.get(getPersonClazz(), getPersistence());
-        assertEquals(3, ResourceGetHandler.get(peopleResource, getPersistence()).size());
+        assertEquals(3, ResourceAction.get().stream().get(peopleResource, getPersistence()).size());
     }
 
     @Test
@@ -261,9 +259,9 @@ class ResourceTest extends RestTestBase {
         ResourceAction.post().stream().post(managerResource, manager, getPersistence());
         manager.setId(null);
         assertThrows(UniqueConstraintException.class, () -> ResourceAction.post().stream().post(managerResource, manager, getPersistence()));
-        assertEquals(1, ResourceGetHandler.get(managerResource, getPersistence()).size());
-        assertEquals(1, ResourceGetHandler.get(employeeResource, getPersistence()).size());
-        assertEquals(1, ResourceGetHandler.get(personResource, getPersistence()).size());
+        assertEquals(1, ResourceAction.get().stream().get(managerResource, getPersistence()).size());
+        assertEquals(1, ResourceAction.get().stream().get(employeeResource, getPersistence()).size());
+        assertEquals(1, ResourceAction.get().stream().get(personResource, getPersistence()).size());
     }
 
     @Test
@@ -358,9 +356,9 @@ class ResourceTest extends RestTestBase {
                 getEmployeeClazz(),
                 entities -> {
                     assertEquals(3, entities.size());
-                    assertEquals(0, entities.get(0).compareTo(ResourceGetHandler.getById(employeeResource, matkoZvonicEntity.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, entities.get(1).compareTo(ResourceGetHandler.getById(employeeResource, ivoBilicEntity.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, entities.get(2).compareTo(ResourceGetHandler.getById(employeeResource, zvonimirAnticevic.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, entities.get(0).compareTo(ResourceAction.get().stream().getById(employeeResource, matkoZvonicEntity.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, entities.get(1).compareTo(ResourceAction.get().stream().getById(employeeResource, ivoBilicEntity.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, entities.get(2).compareTo(ResourceAction.get().stream().getById(employeeResource, zvonimirAnticevic.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -369,7 +367,7 @@ class ResourceTest extends RestTestBase {
                 getEmployeeClazz(),
                 entities -> {
                     assertEquals(1, entities.size());
-                    assertEquals(0, entities.get(0).compareTo(ResourceGetHandler.getById(employeeResource, anteMilin.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, entities.get(0).compareTo(ResourceAction.get().stream().getById(employeeResource, anteMilin.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -383,41 +381,41 @@ class ResourceTest extends RestTestBase {
 
                     GroupPeriod anteMilinGroupPeriod = groupPeriods.get(0);
                     assertTrue(anteMilinGroupPeriod.getFrom() instanceof Entity);
-                    assertEquals(0, ((Entity) anteMilinGroupPeriod.getFrom()).compareTo(ResourceGetHandler.getById(employeeResource, anteMilin.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, ((Entity) anteMilinGroupPeriod.getFrom()).compareTo(ResourceAction.get().stream().getById(employeeResource, anteMilin.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                     List<Entity> anteMilinRecords = anteMilinGroupPeriod.getRecords();
                     assertEquals(2, anteMilinRecords.size());
-                    assertEquals(0, anteMilinRecords.get(0).compareTo(ResourceGetHandler.getById(managerResource, ivoBilic.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, anteMilinRecords.get(1).compareTo(ResourceGetHandler.getById(managerResource, matkoZvonic.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, anteMilinRecords.get(0).compareTo(ResourceAction.get().stream().getById(managerResource, ivoBilic.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, anteMilinRecords.get(1).compareTo(ResourceAction.get().stream().getById(managerResource, matkoZvonic.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod zvonimirAnticevicGroupPeriod = groupPeriods.get(1);
                     assertTrue(zvonimirAnticevicGroupPeriod.getFrom() instanceof Entity);
-                    assertEquals(0, ((Entity) zvonimirAnticevicGroupPeriod.getFrom()).compareTo(ResourceGetHandler.getById(employeeResource, zvonimirAnticevic.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, ((Entity) zvonimirAnticevicGroupPeriod.getFrom()).compareTo(ResourceAction.get().stream().getById(employeeResource, zvonimirAnticevic.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                     List<Entity> zvonimirAnticevicRecords = zvonimirAnticevicGroupPeriod.getRecords();
                     assertEquals(1, zvonimirAnticevicRecords.size());
-                    assertEquals(0, zvonimirAnticevicRecords.get(0).compareTo(ResourceGetHandler.getById(managerResource, ivoBilic.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, zvonimirAnticevicRecords.get(0).compareTo(ResourceAction.get().stream().getById(managerResource, ivoBilic.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
-        List<Entity> peopleEntities = ResourceGetHandler.get(personResource, getPersistence());
+        List<Entity> peopleEntities = ResourceAction.get().stream().get(personResource, getPersistence());
         assertEquals(4, peopleEntities.size());
         assertEquals(0, anteMilinEntity.getParentEntity().compareTo(peopleEntities.get(3)));
         assertEquals(0, zvonimirAnticevicEntity.getParentEntity().compareTo(peopleEntities.get(2)));
         assertEquals(0, ivoBilicEntity.getParentEntity().getParentEntity().compareTo(peopleEntities.get(1)));
         assertEquals(0, matkoZvonicEntity.getParentEntity().getParentEntity().compareTo(peopleEntities.get(0)));
 
-        List<Entity> employeeEntities = ResourceGetHandler.get(employeeResource, getPersistence());
+        List<Entity> employeeEntities = ResourceAction.get().stream().get(employeeResource, getPersistence());
         assertEquals(4, employeeEntities.size());
         assertEquals(0, anteMilinEntity.compareTo(employeeEntities.get(3)));
         assertEquals(0, zvonimirAnticevicEntity.compareTo(employeeEntities.get(2)));
         assertEquals(0, ivoBilicEntity.getParentEntity().compareTo(employeeEntities.get(1)));
         assertEquals(0, matkoZvonicEntity.getParentEntity().compareTo(employeeEntities.get(0)));
 
-        List<Entity> managerEntities = ResourceGetHandler.get(managerResource, getPersistence());
+        List<Entity> managerEntities = ResourceAction.get().stream().get(managerResource, getPersistence());
         assertEquals(2, managerEntities.size());
         assertEquals(0, ivoBilicEntity.compareTo(managerEntities.get(1)));
         assertEquals(0, matkoZvonicEntity.compareTo(managerEntities.get(0)));
 
-        Optional<Entity> anteMilinOptional = ResourceGetHandler.getById(personResource, 1L, getPersistence());
+        Optional<Entity> anteMilinOptional = ResourceAction.get().stream().getById(personResource, 1L, getPersistence());
         assertTrue(anteMilinOptional.isPresent());
         assertEquals(0, anteMilinOptional.get().compareTo(peopleEntities.get(3)));
     }
@@ -456,51 +454,51 @@ class ResourceTest extends RestTestBase {
         matkoZvonic.setId(matkoZvonicEntity.getId());
 
         // PERSON
-        Optional<Entity> anteMilinOptional = ResourceGetHandler.getById(personResource, anteMilin.getId(), getPersistence());
+        Optional<Entity> anteMilinOptional = ResourceAction.get().stream().getById(personResource, anteMilin.getId(), getPersistence());
         assertTrue(anteMilinOptional.isPresent());
         assertEquals(0, anteMilinOptional.get().compareTo(anteMilinEntity.getParentEntity()));
 
-        Optional<Entity> zvonimirAnticevicOptional = ResourceGetHandler.getById(personResource, zvonimirAnticevic.getId(), getPersistence());
+        Optional<Entity> zvonimirAnticevicOptional = ResourceAction.get().stream().getById(personResource, zvonimirAnticevic.getId(), getPersistence());
         assertTrue(zvonimirAnticevicOptional.isPresent());
         assertEquals(0, zvonimirAnticevicOptional.get().compareTo(zvonimirAnticevicEntity.getParentEntity()));
 
-        Optional<Entity> ivoBilicOptional = ResourceGetHandler.getById(personResource, ivoBilic.getId(), getPersistence());
+        Optional<Entity> ivoBilicOptional = ResourceAction.get().stream().getById(personResource, ivoBilic.getId(), getPersistence());
         assertTrue(ivoBilicOptional.isPresent());
         assertEquals(0, ivoBilicOptional.get().compareTo(ivoBilicEntity.getParentEntity().getParentEntity()));
 
-        Optional<Entity> matkoZvonicOptional = ResourceGetHandler.getById(personResource, matkoZvonic.getId(), getPersistence());
+        Optional<Entity> matkoZvonicOptional = ResourceAction.get().stream().getById(personResource, matkoZvonic.getId(), getPersistence());
         assertTrue(matkoZvonicOptional.isPresent());
         assertEquals(0, matkoZvonicOptional.get().compareTo(matkoZvonicEntity.getParentEntity().getParentEntity()));
 
         // EMPLOYEE
-        anteMilinOptional = ResourceGetHandler.getById(employeeResource, anteMilin.getId(), getPersistence());
+        anteMilinOptional = ResourceAction.get().stream().getById(employeeResource, anteMilin.getId(), getPersistence());
         assertTrue(anteMilinOptional.isPresent());
         assertEquals(0, anteMilinOptional.get().compareTo(anteMilinEntity));
 
-        zvonimirAnticevicOptional = ResourceGetHandler.getById(employeeResource, zvonimirAnticevic.getId(), getPersistence());
+        zvonimirAnticevicOptional = ResourceAction.get().stream().getById(employeeResource, zvonimirAnticevic.getId(), getPersistence());
         assertTrue(zvonimirAnticevicOptional.isPresent());
         assertEquals(0, zvonimirAnticevicOptional.get().compareTo(zvonimirAnticevicEntity));
 
-        ivoBilicOptional = ResourceGetHandler.getById(employeeResource, ivoBilic.getId(), getPersistence());
+        ivoBilicOptional = ResourceAction.get().stream().getById(employeeResource, ivoBilic.getId(), getPersistence());
         assertTrue(ivoBilicOptional.isPresent());
         assertEquals(0, ivoBilicOptional.get().compareTo(ivoBilicEntity.getParentEntity()));
 
-        matkoZvonicOptional = ResourceGetHandler.getById(employeeResource, matkoZvonic.getId(), getPersistence());
+        matkoZvonicOptional = ResourceAction.get().stream().getById(employeeResource, matkoZvonic.getId(), getPersistence());
         assertTrue(matkoZvonicOptional.isPresent());
         assertEquals(0, matkoZvonicOptional.get().compareTo(matkoZvonicEntity.getParentEntity()));
 
         // MANAGER
-        anteMilinOptional = ResourceGetHandler.getById(managerResource, anteMilin.getId(), getPersistence());
+        anteMilinOptional = ResourceAction.get().stream().getById(managerResource, anteMilin.getId(), getPersistence());
         assertTrue(anteMilinOptional.isEmpty());
 
-        zvonimirAnticevicOptional = ResourceGetHandler.getById(managerResource, zvonimirAnticevic.getId(), getPersistence());
+        zvonimirAnticevicOptional = ResourceAction.get().stream().getById(managerResource, zvonimirAnticevic.getId(), getPersistence());
         assertTrue(zvonimirAnticevicOptional.isEmpty());
 
-        ivoBilicOptional = ResourceGetHandler.getById(managerResource, ivoBilic.getId(), getPersistence());
+        ivoBilicOptional = ResourceAction.get().stream().getById(managerResource, ivoBilic.getId(), getPersistence());
         assertTrue(ivoBilicOptional.isPresent());
         assertEquals(0, ivoBilicOptional.get().compareTo(ivoBilicEntity));
 
-        matkoZvonicOptional = ResourceGetHandler.getById(managerResource, matkoZvonic.getId(), getPersistence());
+        matkoZvonicOptional = ResourceAction.get().stream().getById(managerResource, matkoZvonic.getId(), getPersistence());
         assertTrue(matkoZvonicOptional.isPresent());
         assertEquals(0, matkoZvonicOptional.get().compareTo(matkoZvonicEntity));
     }
@@ -541,49 +539,49 @@ class ResourceTest extends RestTestBase {
         ResourceDeleteHandler.delete(managerResource, matkoZvonic.getId(), getPersistence());
 
         // PERSON
-        Optional<Entity> anteMilinOptional = ResourceGetHandler.getById(personResource, anteMilin.getId(), getPersistence());
+        Optional<Entity> anteMilinOptional = ResourceAction.get().stream().getById(personResource, anteMilin.getId(), getPersistence());
         assertTrue(anteMilinOptional.isPresent());
         assertEquals(0, anteMilinOptional.get().compareTo(anteMilinEntity.getParentEntity()));
 
-        Optional<Entity> zvonimirAnticevicOptional = ResourceGetHandler.getById(personResource, zvonimirAnticevic.getId(), getPersistence());
+        Optional<Entity> zvonimirAnticevicOptional = ResourceAction.get().stream().getById(personResource, zvonimirAnticevic.getId(), getPersistence());
         assertTrue(zvonimirAnticevicOptional.isPresent());
         assertEquals(0, zvonimirAnticevicOptional.get().compareTo(zvonimirAnticevicEntity.getParentEntity()));
 
-        Optional<Entity> ivoBilicOptional = ResourceGetHandler.getById(personResource, ivoBilic.getId(), getPersistence());
+        Optional<Entity> ivoBilicOptional = ResourceAction.get().stream().getById(personResource, ivoBilic.getId(), getPersistence());
         assertTrue(ivoBilicOptional.isPresent());
         assertEquals(0, ivoBilicOptional.get().compareTo(ivoBilicEntity.getParentEntity().getParentEntity()));
 
-        Optional<Entity> matkoZvonicOptional = ResourceGetHandler.getById(personResource, matkoZvonic.getId(), getPersistence());
+        Optional<Entity> matkoZvonicOptional = ResourceAction.get().stream().getById(personResource, matkoZvonic.getId(), getPersistence());
         assertTrue(matkoZvonicOptional.isEmpty());
 
         // EMPLOYEE
-        anteMilinOptional = ResourceGetHandler.getById(employeeResource, anteMilin.getId(), getPersistence());
+        anteMilinOptional = ResourceAction.get().stream().getById(employeeResource, anteMilin.getId(), getPersistence());
         assertTrue(anteMilinOptional.isPresent());
         assertEquals(0, anteMilinOptional.get().compareTo(anteMilinEntity));
 
-        zvonimirAnticevicOptional = ResourceGetHandler.getById(employeeResource, zvonimirAnticevic.getId(), getPersistence());
+        zvonimirAnticevicOptional = ResourceAction.get().stream().getById(employeeResource, zvonimirAnticevic.getId(), getPersistence());
         assertTrue(zvonimirAnticevicOptional.isPresent());
         assertEquals(0, zvonimirAnticevicOptional.get().compareTo(zvonimirAnticevicEntity));
 
-        ivoBilicOptional = ResourceGetHandler.getById(employeeResource, ivoBilic.getId(), getPersistence());
+        ivoBilicOptional = ResourceAction.get().stream().getById(employeeResource, ivoBilic.getId(), getPersistence());
         assertTrue(ivoBilicOptional.isPresent());
         assertEquals(0, ivoBilicOptional.get().compareTo(ivoBilicEntity.getParentEntity()));
 
-        matkoZvonicOptional = ResourceGetHandler.getById(employeeResource, matkoZvonic.getId(), getPersistence());
+        matkoZvonicOptional = ResourceAction.get().stream().getById(employeeResource, matkoZvonic.getId(), getPersistence());
         assertTrue(matkoZvonicOptional.isEmpty());
 
         // MANAGER
-        anteMilinOptional = ResourceGetHandler.getById(managerResource, anteMilin.getId(), getPersistence());
+        anteMilinOptional = ResourceAction.get().stream().getById(managerResource, anteMilin.getId(), getPersistence());
         assertTrue(anteMilinOptional.isEmpty());
 
-        zvonimirAnticevicOptional = ResourceGetHandler.getById(managerResource, zvonimirAnticevic.getId(), getPersistence());
+        zvonimirAnticevicOptional = ResourceAction.get().stream().getById(managerResource, zvonimirAnticevic.getId(), getPersistence());
         assertTrue(zvonimirAnticevicOptional.isEmpty());
 
-        ivoBilicOptional = ResourceGetHandler.getById(managerResource, ivoBilic.getId(), getPersistence());
+        ivoBilicOptional = ResourceAction.get().stream().getById(managerResource, ivoBilic.getId(), getPersistence());
         assertTrue(ivoBilicOptional.isPresent());
         assertEquals(0, ivoBilicOptional.get().compareTo(ivoBilicEntity));
 
-        matkoZvonicOptional = ResourceGetHandler.getById(managerResource, matkoZvonic.getId(), getPersistence());
+        matkoZvonicOptional = ResourceAction.get().stream().getById(managerResource, matkoZvonic.getId(), getPersistence());
         assertTrue(matkoZvonicOptional.isEmpty());
     }
 
@@ -623,50 +621,50 @@ class ResourceTest extends RestTestBase {
         ResourceDeleteHandler.delete(employeeResource, anteMilin.getId(), getPersistence());
 
         // PERSON
-        Optional<Entity> anteMilinOptional = ResourceGetHandler.getById(personResource, anteMilin.getId(), getPersistence());
+        Optional<Entity> anteMilinOptional = ResourceAction.get().stream().getById(personResource, anteMilin.getId(), getPersistence());
         assertTrue(anteMilinOptional.isEmpty());
 
-        Optional<Entity> zvonimirAnticevicOptional = ResourceGetHandler.getById(personResource, zvonimirAnticevic.getId(), getPersistence());
+        Optional<Entity> zvonimirAnticevicOptional = ResourceAction.get().stream().getById(personResource, zvonimirAnticevic.getId(), getPersistence());
         assertTrue(zvonimirAnticevicOptional.isPresent());
         assertEquals(0, zvonimirAnticevicOptional.get().compareTo(zvonimirAnticevicEntity.getParentEntity()));
 
-        Optional<Entity> ivoBilicOptional = ResourceGetHandler.getById(personResource, ivoBilic.getId(), getPersistence());
+        Optional<Entity> ivoBilicOptional = ResourceAction.get().stream().getById(personResource, ivoBilic.getId(), getPersistence());
         assertTrue(ivoBilicOptional.isPresent());
         assertEquals(0, ivoBilicOptional.get().compareTo(ivoBilicEntity.getParentEntity().getParentEntity()));
 
-        Optional<Entity> matkoZvonicOptional = ResourceGetHandler.getById(personResource, matkoZvonic.getId(), getPersistence());
+        Optional<Entity> matkoZvonicOptional = ResourceAction.get().stream().getById(personResource, matkoZvonic.getId(), getPersistence());
         assertTrue(matkoZvonicOptional.isPresent());
         assertEquals(0, matkoZvonicOptional.get().compareTo(matkoZvonicEntity.getParentEntity().getParentEntity()));
 
         // EMPLOYEE
-        anteMilinOptional = ResourceGetHandler.getById(employeeResource, anteMilin.getId(), getPersistence());
+        anteMilinOptional = ResourceAction.get().stream().getById(employeeResource, anteMilin.getId(), getPersistence());
         assertTrue(anteMilinOptional.isEmpty());
 
-        zvonimirAnticevicOptional = ResourceGetHandler.getById(employeeResource, zvonimirAnticevic.getId(), getPersistence());
+        zvonimirAnticevicOptional = ResourceAction.get().stream().getById(employeeResource, zvonimirAnticevic.getId(), getPersistence());
         assertTrue(zvonimirAnticevicOptional.isPresent());
         assertEquals(0, zvonimirAnticevicOptional.get().compareTo(zvonimirAnticevicEntity));
 
-        ivoBilicOptional = ResourceGetHandler.getById(employeeResource, ivoBilic.getId(), getPersistence());
+        ivoBilicOptional = ResourceAction.get().stream().getById(employeeResource, ivoBilic.getId(), getPersistence());
         assertTrue(ivoBilicOptional.isPresent());
         assertEquals(0, ivoBilicOptional.get().compareTo(ivoBilicEntity.getParentEntity()));
 
-        matkoZvonicOptional = ResourceGetHandler.getById(employeeResource, matkoZvonic.getId(), getPersistence());
+        matkoZvonicOptional = ResourceAction.get().stream().getById(employeeResource, matkoZvonic.getId(), getPersistence());
         assertTrue(matkoZvonicOptional.isPresent());
         assertEquals(0, matkoZvonicOptional.get().compareTo(matkoZvonicEntity.getParentEntity()));
 
         // MANAGER
-        anteMilinOptional = ResourceGetHandler.getById(managerResource, anteMilin.getId(), getPersistence());
+        anteMilinOptional = ResourceAction.get().stream().getById(managerResource, anteMilin.getId(), getPersistence());
         assertTrue(anteMilinOptional.isEmpty());
 
-        zvonimirAnticevicOptional = ResourceGetHandler.getById(managerResource, zvonimirAnticevic.getId(), getPersistence());
+        zvonimirAnticevicOptional = ResourceAction.get().stream().getById(managerResource, zvonimirAnticevic.getId(), getPersistence());
         assertTrue(zvonimirAnticevicOptional.isEmpty());
 
-        matkoZvonicOptional = ResourceGetHandler.getById(managerResource, matkoZvonic.getId(), getPersistence());
+        matkoZvonicOptional = ResourceAction.get().stream().getById(managerResource, matkoZvonic.getId(), getPersistence());
         assertTrue(matkoZvonicOptional.isPresent());
         Entity matkoZvonicById = matkoZvonicOptional.get();
         assertEquals(List.of(), matkoZvonicById.getRelatedEntities("employees"));
 
-        ivoBilicOptional = ResourceGetHandler.getById(managerResource, ivoBilic.getId(), getPersistence());
+        ivoBilicOptional = ResourceAction.get().stream().getById(managerResource, ivoBilic.getId(), getPersistence());
         assertTrue(ivoBilicOptional.isPresent());
         Entity ivoBilicById = ivoBilicOptional.get();
         assertEquals(0, ivoBilicById.getRelatedEntities("employees").get(0).compareTo(zvonimirAnticevicEntity));
@@ -818,51 +816,51 @@ class ResourceTest extends RestTestBase {
         matkoZvonicEntity = ResourcePutHandler.put(managerResource, matkoZvonic, getPersistence());
 
         // PERSON
-        Optional<Entity> anteMilinOptional = ResourceGetHandler.getById(personResource, anteMilin.getId(), getPersistence());
+        Optional<Entity> anteMilinOptional = ResourceAction.get().stream().getById(personResource, anteMilin.getId(), getPersistence());
         assertTrue(anteMilinOptional.isPresent());
         assertEquals(0, anteMilinOptional.get().compareTo(anteMilinEntity.getParentEntity()));
 
-        Optional<Entity> zvonimirAnticevicOptional = ResourceGetHandler.getById(personResource, zvonimirAnticevic.getId(), getPersistence());
+        Optional<Entity> zvonimirAnticevicOptional = ResourceAction.get().stream().getById(personResource, zvonimirAnticevic.getId(), getPersistence());
         assertTrue(zvonimirAnticevicOptional.isPresent());
         assertEquals(0, zvonimirAnticevicOptional.get().compareTo(zvonimirAnticevicEntity.getParentEntity()));
 
-        Optional<Entity> ivoBilicOptional = ResourceGetHandler.getById(personResource, ivoBilic.getId(), getPersistence());
+        Optional<Entity> ivoBilicOptional = ResourceAction.get().stream().getById(personResource, ivoBilic.getId(), getPersistence());
         assertTrue(ivoBilicOptional.isPresent());
         assertEquals(0, ivoBilicOptional.get().compareTo(ivoBilicEntity.getParentEntity().getParentEntity()));
 
-        Optional<Entity> matkoZvonicOptional = ResourceGetHandler.getById(personResource, matkoZvonic.getId(), getPersistence());
+        Optional<Entity> matkoZvonicOptional = ResourceAction.get().stream().getById(personResource, matkoZvonic.getId(), getPersistence());
         assertTrue(matkoZvonicOptional.isPresent());
         assertEquals(0, matkoZvonicOptional.get().compareTo(matkoZvonicEntity.getParentEntity().getParentEntity()));
 
         // EMPLOYEE
-        anteMilinOptional = ResourceGetHandler.getById(employeeResource, anteMilin.getId(), getPersistence());
+        anteMilinOptional = ResourceAction.get().stream().getById(employeeResource, anteMilin.getId(), getPersistence());
         assertTrue(anteMilinOptional.isPresent());
         assertEquals(0, anteMilinOptional.get().compareTo(anteMilinEntity));
 
-        zvonimirAnticevicOptional = ResourceGetHandler.getById(employeeResource, zvonimirAnticevic.getId(), getPersistence());
+        zvonimirAnticevicOptional = ResourceAction.get().stream().getById(employeeResource, zvonimirAnticevic.getId(), getPersistence());
         assertTrue(zvonimirAnticevicOptional.isPresent());
         assertEquals(0, zvonimirAnticevicOptional.get().compareTo(zvonimirAnticevicEntity));
 
-        ivoBilicOptional = ResourceGetHandler.getById(employeeResource, ivoBilic.getId(), getPersistence());
+        ivoBilicOptional = ResourceAction.get().stream().getById(employeeResource, ivoBilic.getId(), getPersistence());
         assertTrue(ivoBilicOptional.isPresent());
         assertEquals(0, ivoBilicOptional.get().compareTo(ivoBilicEntity.getParentEntity()));
 
-        matkoZvonicOptional = ResourceGetHandler.getById(employeeResource, matkoZvonic.getId(), getPersistence());
+        matkoZvonicOptional = ResourceAction.get().stream().getById(employeeResource, matkoZvonic.getId(), getPersistence());
         assertTrue(matkoZvonicOptional.isPresent());
         assertEquals(0, matkoZvonicOptional.get().compareTo(matkoZvonicEntity.getParentEntity()));
 
         // MANAGER
-        anteMilinOptional = ResourceGetHandler.getById(managerResource, anteMilin.getId(), getPersistence());
+        anteMilinOptional = ResourceAction.get().stream().getById(managerResource, anteMilin.getId(), getPersistence());
         assertTrue(anteMilinOptional.isEmpty());
 
-        zvonimirAnticevicOptional = ResourceGetHandler.getById(managerResource, zvonimirAnticevic.getId(), getPersistence());
+        zvonimirAnticevicOptional = ResourceAction.get().stream().getById(managerResource, zvonimirAnticevic.getId(), getPersistence());
         assertTrue(zvonimirAnticevicOptional.isEmpty());
 
-        ivoBilicOptional = ResourceGetHandler.getById(managerResource, ivoBilic.getId(), getPersistence());
+        ivoBilicOptional = ResourceAction.get().stream().getById(managerResource, ivoBilic.getId(), getPersistence());
         assertTrue(ivoBilicOptional.isPresent());
         assertEquals(0, ivoBilicOptional.get().compareTo(ivoBilicEntity));
 
-        matkoZvonicOptional = ResourceGetHandler.getById(managerResource, matkoZvonic.getId(), getPersistence());
+        matkoZvonicOptional = ResourceAction.get().stream().getById(managerResource, matkoZvonic.getId(), getPersistence());
         assertTrue(matkoZvonicOptional.isPresent());
         assertEquals(0, matkoZvonicOptional.get().compareTo(matkoZvonicEntity));
         assertEquals(matkoZvonic.getFirstName(), matkoZvonicOptional.get().getAttributeValue("firstName"));
@@ -1243,22 +1241,22 @@ class ResourceTest extends RestTestBase {
                     assertEquals("2018", year2018.getPeriodName());
                     List<Entity> year2018Records = year2018.getRecords();
                     assertEquals(3, year2018Records.size());
-                    assertEquals(0, year2018Records.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, year2018Records.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, year2018Records.get(2).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, year2018Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, year2018Records.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, year2018Records.get(2).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod year2019 = group.getGroupPeriods().get(1);
                     assertEquals("2019", year2019.getPeriodName());
                     List<Entity> year2019Records = year2019.getRecords();
                     assertEquals(2, year2019Records.size());
-                    assertEquals(0, year2019Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, year2019Records.get(1).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, year2019Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, year2019Records.get(1).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod year2020 = group.getGroupPeriods().get(2);
                     assertEquals("2020", year2020.getPeriodName());
                     List<Entity> year2020Records = year2020.getRecords();
                     assertEquals(1, year2020Records.size());
-                    assertEquals(0, year2020Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, year2020Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1272,22 +1270,22 @@ class ResourceTest extends RestTestBase {
                     assertEquals("2020", year2020.getPeriodName());
                     List<Entity> year2020Records = year2020.getRecords();
                     assertEquals(1, year2020Records.size());
-                    assertEquals(0, year2020Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, year2020Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod year2019 = group.getGroupPeriods().get(1);
                     assertEquals("2019", year2019.getPeriodName());
                     List<Entity> year2019Records = year2019.getRecords();
                     assertEquals(2, year2019Records.size());
-                    assertEquals(0, year2019Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, year2019Records.get(1).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, year2019Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, year2019Records.get(1).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod year2018 = group.getGroupPeriods().get(2);
                     assertEquals("2018", year2018.getPeriodName());
                     List<Entity> year2018Records = year2018.getRecords();
                     assertEquals(3, year2018Records.size());
-                    assertEquals(0, year2018Records.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, year2018Records.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, year2018Records.get(2).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, year2018Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, year2018Records.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, year2018Records.get(2).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1301,8 +1299,8 @@ class ResourceTest extends RestTestBase {
                     assertEquals("2019", year2019.getPeriodName());
                     List<Entity> year2019Records = year2019.getRecords();
                     assertEquals(2, year2019Records.size());
-                    assertEquals(0, year2019Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, year2019Records.get(1).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, year2019Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, year2019Records.get(1).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1316,27 +1314,27 @@ class ResourceTest extends RestTestBase {
                     assertEquals("01", week01.getPeriodName());
                     List<Entity> januaryRecords = week01.getRecords();
                     assertEquals(3, januaryRecords.size());
-                    assertEquals(0, januaryRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, januaryRecords.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, januaryRecords.get(2).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, januaryRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, januaryRecords.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, januaryRecords.get(2).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod week05 = group.getGroupPeriods().get(4);
                     assertEquals("05", week05.getPeriodName());
                     List<Entity> week05Records = week05.getRecords();
                     assertEquals(1, week05Records.size());
-                    assertEquals(0, week05Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, week05Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod week09 = group.getGroupPeriods().get(8);
                     assertEquals("09", week09.getPeriodName());
                     List<Entity> week09Records = week09.getRecords();
                     assertEquals(1, week09Records.size());
-                    assertEquals(0, week09Records.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, week09Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod week16 = group.getGroupPeriods().get(15);
                     assertEquals("16", week16.getPeriodName());
                     List<Entity> week16Records = week16.getRecords();
                     assertEquals(1, week16Records.size());
-                    assertEquals(0, week16Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, week16Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1350,13 +1348,13 @@ class ResourceTest extends RestTestBase {
                     assertEquals("01", week01.getPeriodName());
                     List<Entity> januaryRecords = week01.getRecords();
                     assertEquals(1, januaryRecords.size());
-                    assertEquals(0, januaryRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, januaryRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod week16 = group.getGroupPeriods().get(15);
                     assertEquals("16", week16.getPeriodName());
                     List<Entity> week16Records = week16.getRecords();
                     assertEquals(1, week16Records.size());
-                    assertEquals(0, week16Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, week16Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1370,27 +1368,27 @@ class ResourceTest extends RestTestBase {
                     assertEquals("01", week01.getPeriodName());
                     List<Entity> januaryRecords = week01.getRecords();
                     assertEquals(3, januaryRecords.size());
-                    assertEquals(0, januaryRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, januaryRecords.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, januaryRecords.get(2).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, januaryRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, januaryRecords.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, januaryRecords.get(2).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod week05 = group.getGroupPeriods().get(48);
                     assertEquals("05", week05.getPeriodName());
                     List<Entity> week05Records = week05.getRecords();
                     assertEquals(1, week05Records.size());
-                    assertEquals(0, week05Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, week05Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod week09 = group.getGroupPeriods().get(44);
                     assertEquals("09", week09.getPeriodName());
                     List<Entity> week09Records = week09.getRecords();
                     assertEquals(1, week09Records.size());
-                    assertEquals(0, week09Records.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, week09Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod week16 = group.getGroupPeriods().get(37);
                     assertEquals("16", week16.getPeriodName());
                     List<Entity> week16Records = week16.getRecords();
                     assertEquals(1, week16Records.size());
-                    assertEquals(0, week16Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, week16Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1404,27 +1402,27 @@ class ResourceTest extends RestTestBase {
                     assertEquals(Month.JANUARY.name(), january.getPeriodName());
                     List<Entity> januaryRecords = january.getRecords();
                     assertEquals(3, januaryRecords.size());
-                    assertEquals(0, januaryRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, januaryRecords.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, januaryRecords.get(2).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, januaryRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, januaryRecords.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, januaryRecords.get(2).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod february = group.getGroupPeriods().get(1);
                     assertEquals(Month.FEBRUARY.name(), february.getPeriodName());
                     List<Entity> februaryRecords = february.getRecords();
                     assertEquals(1, februaryRecords.size());
-                    assertEquals(0, februaryRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, februaryRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod march = group.getGroupPeriods().get(2);
                     assertEquals(Month.MARCH.name(), march.getPeriodName());
                     List<Entity> marchRecords = march.getRecords();
                     assertEquals(1, marchRecords.size());
-                    assertEquals(0, marchRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, marchRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod april = group.getGroupPeriods().get(3);
                     assertEquals(Month.APRIL.name(), april.getPeriodName());
                     List<Entity> aprilRecords = april.getRecords();
                     assertEquals(1, aprilRecords.size());
-                    assertEquals(0, aprilRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, aprilRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1438,7 +1436,7 @@ class ResourceTest extends RestTestBase {
                     assertEquals(Month.JANUARY.name(), january.getPeriodName());
                     List<Entity> januaryRecords = january.getRecords();
                     assertEquals(1, januaryRecords.size());
-                    assertEquals(0, januaryRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, januaryRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod february = group.getGroupPeriods().get(1);
                     assertEquals(Month.FEBRUARY.name(), february.getPeriodName());
@@ -1454,7 +1452,7 @@ class ResourceTest extends RestTestBase {
                     assertEquals(Month.APRIL.name(), april.getPeriodName());
                     List<Entity> aprilRecords = april.getRecords();
                     assertEquals(1, aprilRecords.size());
-                    assertEquals(0, aprilRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, aprilRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1468,27 +1466,27 @@ class ResourceTest extends RestTestBase {
                     assertEquals(Month.JANUARY.name(), january.getPeriodName());
                     List<Entity> januaryRecords = january.getRecords();
                     assertEquals(3, januaryRecords.size());
-                    assertEquals(0, januaryRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, januaryRecords.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, januaryRecords.get(2).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, januaryRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, januaryRecords.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, januaryRecords.get(2).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod february = group.getGroupPeriods().get(10);
                     assertEquals(Month.FEBRUARY.name(), february.getPeriodName());
                     List<Entity> februaryRecords = february.getRecords();
                     assertEquals(1, februaryRecords.size());
-                    assertEquals(0, februaryRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, februaryRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod march = group.getGroupPeriods().get(9);
                     assertEquals(Month.MARCH.name(), march.getPeriodName());
                     List<Entity> marchRecords = march.getRecords();
                     assertEquals(1, marchRecords.size());
-                    assertEquals(0, marchRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, marchRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod april = group.getGroupPeriods().get(8);
                     assertEquals(Month.APRIL.name(), april.getPeriodName());
                     List<Entity> aprilRecords = april.getRecords();
                     assertEquals(1, aprilRecords.size());
-                    assertEquals(0, aprilRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, aprilRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1502,22 +1500,22 @@ class ResourceTest extends RestTestBase {
                     assertEquals("09", hours9.getPeriodName());
                     List<Entity> hours09Records = hours9.getRecords();
                     assertEquals(2, hours09Records.size());
-                    assertEquals(0, hours09Records.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, hours09Records.get(1).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, hours09Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, hours09Records.get(1).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod hours12 = group.getGroupPeriods().get(12);
                     assertEquals("12", hours12.getPeriodName());
                     List<Entity> hours12Records = hours12.getRecords();
                     assertEquals(2, hours12Records.size());
-                    assertEquals(0, hours12Records.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, hours12Records.get(1).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, hours12Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, hours12Records.get(1).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod hours18 = group.getGroupPeriods().get(18);
                     assertEquals("18", hours18.getPeriodName());
                     List<Entity> hours18Records = hours18.getRecords();
                     assertEquals(2, hours18Records.size());
-                    assertEquals(0, hours18Records.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, hours18Records.get(1).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, hours18Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, hours18Records.get(1).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1531,27 +1529,27 @@ class ResourceTest extends RestTestBase {
                     assertEquals("001", dayYear001.getPeriodName());
                     List<Entity> dayYear001Records = dayYear001.getRecords();
                     assertEquals(3, dayYear001Records.size());
-                    assertEquals(0, dayYear001Records.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, dayYear001Records.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, dayYear001Records.get(2).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, dayYear001Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, dayYear001Records.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, dayYear001Records.get(2).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod dayYear032 = group.getGroupPeriods().get(31);
                     assertEquals("032", dayYear032.getPeriodName());
                     List<Entity> dayYear032Records = dayYear032.getRecords();
                     assertEquals(1, dayYear032Records.size());
-                    assertEquals(0, dayYear032Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, dayYear032Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod dayYear060 = group.getGroupPeriods().get(59);
                     assertEquals("060", dayYear060.getPeriodName());
                     List<Entity> dayYear060Records = dayYear060.getRecords();
                     assertEquals(1, dayYear060Records.size());
-                    assertEquals(0, dayYear060Records.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, dayYear060Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod dayYear105 = group.getGroupPeriods().get(104);
                     assertEquals("105", dayYear105.getPeriodName());
                     List<Entity> dayYear105Records = dayYear105.getRecords();
                     assertEquals(1, dayYear105Records.size());
-                    assertEquals(0, dayYear105Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, dayYear105Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1565,27 +1563,27 @@ class ResourceTest extends RestTestBase {
                     assertEquals(DayOfWeek.MONDAY.name(), monday.getPeriodName());
                     List<Entity> mondayRecords = monday.getRecords();
                     assertEquals(3, mondayRecords.size());
-                    assertEquals(0, mondayRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, mondayRecords.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, mondayRecords.get(2).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, mondayRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, mondayRecords.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, mondayRecords.get(2).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod tuesday = group.getGroupPeriods().get(1);
                     assertEquals(DayOfWeek.TUESDAY.name(), tuesday.getPeriodName());
                     List<Entity> tuesdayRecords = tuesday.getRecords();
                     assertEquals(1, tuesdayRecords.size());
-                    assertEquals(0, tuesdayRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, tuesdayRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod thursday = group.getGroupPeriods().get(3);
                     assertEquals(DayOfWeek.THURSDAY.name(), thursday.getPeriodName());
                     List<Entity> thursdayRecords = thursday.getRecords();
                     assertEquals(1, thursdayRecords.size());
-                    assertEquals(0, thursdayRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, thursdayRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod saturday = group.getGroupPeriods().get(5);
                     assertEquals(DayOfWeek.SATURDAY.name(), saturday.getPeriodName());
                     List<Entity> saturdayRecords = saturday.getRecords();
                     assertEquals(1, saturdayRecords.size());
-                    assertEquals(0, saturdayRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, saturdayRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1599,17 +1597,17 @@ class ResourceTest extends RestTestBase {
                     assertEquals("01", day01.getPeriodName());
                     List<Entity> day01Records = day01.getRecords();
                     assertEquals(5, day01Records.size());
-                    assertEquals(0, day01Records.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, day01Records.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, day01Records.get(2).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, day01Records.get(3).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, day01Records.get(4).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01Records.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01Records.get(2).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01Records.get(3).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01Records.get(4).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod day15 = group.getGroupPeriods().get(14);
                     assertEquals("15", day15.getPeriodName());
                     List<Entity> day15Records = day15.getRecords();
                     assertEquals(1, day15Records.size());
-                    assertEquals(0, day15Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day15Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1623,32 +1621,32 @@ class ResourceTest extends RestTestBase {
                     assertEquals("2018-01-01", day01012018.getPeriodName());
                     List<Entity> day01012018Entities = day01012018.getRecords();
                     assertEquals(2, day01012018Entities.size());
-                    assertEquals(0, day01012018Entities.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, day01012018Entities.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01012018Entities.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01012018Entities.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod day01032018 = group.getGroupPeriods().get(59);
                     assertEquals("2018-03-01", day01032018.getPeriodName());
                     List<Entity> day01032018Records = day01032018.getRecords();
                     assertEquals(1, day01032018Records.size());
-                    assertEquals(0, day01032018Records.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01032018Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod day01012019 = group.getGroupPeriods().get(365);
                     assertEquals("2019-01-01", day01012019.getPeriodName());
                     List<Entity> day01012019Records = day01012019.getRecords();
                     assertEquals(1, day01012019Records.size());
-                    assertEquals(0, day01012019Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01012019Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod day15042019 = group.getGroupPeriods().get(469);
                     assertEquals("2019-04-15", day15042019.getPeriodName());
                     List<Entity> day15042019Records = day15042019.getRecords();
                     assertEquals(1, day15042019Records.size());
-                    assertEquals(0, day15042019Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day15042019Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod day01022020 = group.getGroupPeriods().get(761);
                     assertEquals("2020-02-01", day01022020.getPeriodName());
                     List<Entity> day01022020Records = day01022020.getRecords();
                     assertEquals(1, day01022020Records.size());
-                    assertEquals(0, day01022020Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01022020Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1662,13 +1660,13 @@ class ResourceTest extends RestTestBase {
                     assertEquals("2019-01-01", day01012019.getPeriodName());
                     List<Entity> day01012019Records = day01012019.getRecords();
                     assertEquals(1, day01012019Records.size());
-                    assertEquals(0, day01012019Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01012019Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod day15042019 = group.getGroupPeriods().get(104);
                     assertEquals("2019-04-15", day15042019.getPeriodName());
                     List<Entity> day15042019Records = day15042019.getRecords();
                     assertEquals(1, day15042019Records.size());
-                    assertEquals(0, day15042019Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day15042019Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1682,32 +1680,32 @@ class ResourceTest extends RestTestBase {
                     assertEquals("2018-01-01", day01012018.getPeriodName());
                     List<Entity> day01012018Entities = day01012018.getRecords();
                     assertEquals(2, day01012018Entities.size());
-                    assertEquals(0, day01012018Entities.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, day01012018Entities.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01012018Entities.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01012018Entities.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod day01032018 = group.getGroupPeriods().get(702);
                     assertEquals("2018-03-01", day01032018.getPeriodName());
                     List<Entity> day01032018Records = day01032018.getRecords();
                     assertEquals(1, day01032018Records.size());
-                    assertEquals(0, day01032018Records.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01032018Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod day01012019 = group.getGroupPeriods().get(396);
                     assertEquals("2019-01-01", day01012019.getPeriodName());
                     List<Entity> day01012019Records = day01012019.getRecords();
                     assertEquals(1, day01012019Records.size());
-                    assertEquals(0, day01012019Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01012019Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod day15042019 = group.getGroupPeriods().get(292);
                     assertEquals("2019-04-15", day15042019.getPeriodName());
                     List<Entity> day15042019Records = day15042019.getRecords();
                     assertEquals(1, day15042019Records.size());
-                    assertEquals(0, day15042019Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day15042019Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod day01022020 = group.getGroupPeriods().get(0);
                     assertEquals("2020-02-01", day01022020.getPeriodName());
                     List<Entity> day01022020Records = day01022020.getRecords();
                     assertEquals(1, day01022020Records.size());
-                    assertEquals(0, day01022020Records.get(0).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, day01022020Records.get(0).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1719,8 +1717,8 @@ class ResourceTest extends RestTestBase {
                 getBillClazz(),
                 bills -> {
                     assertEquals(2, bills.size());
-                    assertEquals(0, bills.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, bills.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bills.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bills.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1732,9 +1730,9 @@ class ResourceTest extends RestTestBase {
                 getBillClazz(),
                 bills -> {
                     assertEquals(3, bills.size());
-                    assertEquals(0, bills.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, bills.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, bills.get(2).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bills.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bills.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bills.get(2).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1746,8 +1744,8 @@ class ResourceTest extends RestTestBase {
                 getBillClazz(),
                 bills -> {
                     assertEquals(2, bills.size());
-                    assertEquals(0, bills.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, bills.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bills.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bills.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1759,7 +1757,7 @@ class ResourceTest extends RestTestBase {
                 getBillClazz(),
                 bills -> {
                     assertEquals(1, bills.size());
-                    assertEquals(0, bills.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bills.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1779,10 +1777,10 @@ class ResourceTest extends RestTestBase {
                 getBillClazz(),
                 bills -> {
                     assertEquals(4, bills.size());
-                    assertEquals(0, bills.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, bills.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, bills.get(2).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, bills.get(3).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bills.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bills.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bills.get(2).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bills.get(3).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1797,41 +1795,41 @@ class ResourceTest extends RestTestBase {
                     GroupPeriod bananaPeriod = groupPeriods.get(0);
                     List<Entity> bananaPeriodRecords = bananaPeriod.getRecords();
                     assertEquals(3, bananaPeriodRecords.size());
-                    assertEquals(0, bananaPeriodRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, bananaPeriodRecords.get(1).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, bananaPeriodRecords.get(2).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bananaPeriodRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bananaPeriodRecords.get(1).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, bananaPeriodRecords.get(2).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod breadPeriod = groupPeriods.get(1);
                     List<Entity> breadPeriodRecords = breadPeriod.getRecords();
                     assertEquals(4, breadPeriodRecords.size());
-                    assertEquals(0, breadPeriodRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, breadPeriodRecords.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, breadPeriodRecords.get(2).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, breadPeriodRecords.get(3).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, breadPeriodRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, breadPeriodRecords.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, breadPeriodRecords.get(2).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, breadPeriodRecords.get(3).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod meatPeriod = groupPeriods.get(2);
                     List<Entity> meatPeriodRecords = meatPeriod.getRecords();
                     assertEquals(1, meatPeriodRecords.size());
-                    assertEquals(0, meatPeriodRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, meatPeriodRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod milkPeriod = groupPeriods.get(3);
                     List<Entity> milkPeriodRecords = milkPeriod.getRecords();
                     assertEquals(2, milkPeriodRecords.size());
-                    assertEquals(0, milkPeriodRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, milkPeriodRecords.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, milkPeriodRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, milkPeriodRecords.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillNoon.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod pizzaPeriod = groupPeriods.get(4);
                     List<Entity> pizzaPeriodRecords = pizzaPeriod.getRecords();
                     assertEquals(2, pizzaPeriodRecords.size());
-                    assertEquals(0, pizzaPeriodRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, pizzaPeriodRecords.get(1).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, pizzaPeriodRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, pizzaPeriodRecords.get(1).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
 
                     GroupPeriod saladPeriod = groupPeriods.get(5);
                     List<Entity> saladPeriodRecords = saladPeriod.getRecords();
                     assertEquals(3, saladPeriodRecords.size());
-                    assertEquals(0, saladPeriodRecords.get(0).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, saladPeriodRecords.get(1).compareTo(ResourceGetHandler.getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
-                    assertEquals(0, saladPeriodRecords.get(2).compareTo(ResourceGetHandler.getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, saladPeriodRecords.get(0).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillMorning.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, saladPeriodRecords.get(1).compareTo(ResourceAction.get().stream().getById(billResource, anteMilinBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
+                    assertEquals(0, saladPeriodRecords.get(2).compareTo(ResourceAction.get().stream().getById(billResource, ivoBilicBillEvening.getId(), getPersistence()).orElseThrow(() -> new RuntimeException("Entity does not exist!"))));
                 }
         );
 
@@ -1969,7 +1967,7 @@ class ResourceTest extends RestTestBase {
         ivoBilicBillEvening.setId(Objects.requireNonNull(ResourceAction.post().stream().post(billResource, ivoBilicBillEvening, getPersistence())).getId());
 
         // ACTION
-        alter(
+        ResourceAction.alter().alter(
                 getArticleClazz(),
                 new ClazzAlter(
                         List.of(
@@ -1984,7 +1982,7 @@ class ResourceTest extends RestTestBase {
                 getPersistence()
         );
 
-        List<Entity> articles = ResourceGetHandler.get(PersistableResource.get(getArticleClazz(), getPersistence()), getPersistence());
+        List<Entity> articles = ResourceAction.get().stream().get(PersistableResource.get(getArticleClazz(), getPersistence()), getPersistence());
 
         assertEquals(16, articles.size());
         assertEquals(
