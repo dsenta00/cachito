@@ -1,7 +1,7 @@
 package dsenta.cachito.handler.resource.drop;
 
 import dsenta.cachito.cache.clazz.ClazzCache;
-import dsenta.cachito.exception.CannotDropParentResourceException;
+import dsenta.cachito.exception.resource.CannotDropParentResourceException;
 import dsenta.cachito.handler.resource.delete.ResourceDeleteHandler;
 import dsenta.cachito.model.clazz.Clazz;
 import dsenta.cachito.model.persistence.Persistence;

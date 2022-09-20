@@ -3,12 +3,15 @@ package dsenta.cachito.resource.testmodel;
 import dsenta.cachito.model.persistence.Persistence;
 import dsenta.cachito.model.resource.Resource;
 import dsenta.cachito.model.resource.info.ResourceInfo;
-import dsenta.queryablemap.QueryableMap;
 import dsenta.queryablemap.trie.Trie;
+
+import java.util.Map;
+
+import static java.util.Collections.synchronizedMap;
 
 public class PersistenceImplTest implements Persistence {
 
-    private final QueryableMap<ResourceInfo, Resource> disk = new Trie<>();
+    private final Map<ResourceInfo, Resource> disk = synchronizedMap(new Trie<ResourceInfo, Resource>());
 
     @Override
     public Resource read(ResourceInfo resourceInfo) {

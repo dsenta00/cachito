@@ -1,7 +1,7 @@
 package dsenta.cachito.model.dimension;
 
-import dsenta.cachito.exception.AttributeValueTypeMismatchException;
-import dsenta.cachito.exception.CannotConvertDimensionTypeException;
+import dsenta.cachito.exception.attribute.AttributeValueTypeMismatchException;
+import dsenta.cachito.exception.dimension.CannotConvertDimensionTypeException;
 import dsenta.cachito.model.attribute.DataType;
 import dsenta.queryablemap.QueryableMap;
 import lombok.Getter;

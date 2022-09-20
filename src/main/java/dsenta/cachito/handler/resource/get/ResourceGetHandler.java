@@ -1,7 +1,6 @@
 package dsenta.cachito.handler.resource.get;
 
 import dsenta.cachito.mapper.dimension.IdResultFlatMapper;
-import dsenta.cachito.mapper.entity.EntryToEntityMapper;
 import dsenta.cachito.model.clazz.Clazz;
 import dsenta.cachito.model.dimension.Dimensions;
 import dsenta.cachito.model.entity.Entity;
@@ -20,19 +19,21 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static dsenta.cachito.handler.dimension.DimensionHandler.*;
+import static dsenta.cachito.mapper.entity.EntryToEntityMapper.toEntity;
+import static dsenta.cachito.mapper.entity.EntryToEntityMapper.toEntityList;
 import static dsenta.cachito.mapper.group.GroupPeriodMapper.fromGroupResultWithParent;
 import static dsenta.cachito.model.fields.FieldsToDisplay.all;
 
 public final class ResourceGetHandler {
 
-    public List<Entity> get(Resource resource, Persistence persistence) {
+    public static List<Entity> get(Resource resource, Persistence persistence) {
         return get(resource, persistence, all());
     }
 
-    public List<Entity> get(Resource resource,
-                            Persistence persistence,
-                            FieldsToDisplay fieldsToDisplay) {
-        return EntryToEntityMapper.toEntityList(
+    public static List<Entity> get(Resource resource,
+                                   Persistence persistence,
+                                   FieldsToDisplay fieldsToDisplay) {
+        return toEntityList(
                 resource.getObjectInstances().getDesc(),
                 resource,
                 persistence,
@@ -40,11 +41,11 @@ public final class ResourceGetHandler {
         );
     }
 
-    public List<Entity> get(Resource resource,
-                            Pagination pagination,
-                            Persistence persistence,
-                            FieldsToDisplay fieldsToDisplay) {
-        return EntryToEntityMapper.toEntityList(
+    public static List<Entity> get(Resource resource,
+                                   Pagination pagination,
+                                   Persistence persistence,
+                                   FieldsToDisplay fieldsToDisplay) {
+        return toEntityList(
                 PaginationOfList.getPage(
                         resource.getObjectInstances().getDesc(),
                         pagination.getPageNo(),
@@ -56,21 +57,21 @@ public final class ResourceGetHandler {
         );
     }
 
-    public Optional<Entity> getById(Resource resource, Long id, Persistence persistence) {
+    public static Optional<Entity> getById(Resource resource, Long id, Persistence persistence) {
         var entry = resource.getObjectInstances().getByKey(id);
-        return EntryToEntityMapper.toEntity(entry, resource, persistence);
+        return toEntity(entry, resource, persistence);
     }
 
-    public Optional<Entity> getById(Resource resource, Long id, Persistence persistence, FieldsToDisplay fieldsToDisplay) {
+    public static Optional<Entity> getById(Resource resource, Long id, Persistence persistence, FieldsToDisplay fieldsToDisplay) {
         return getById(resource, id, persistence).map(entity -> entity.clonePartially(fieldsToDisplay));
     }
 
-    public Group get(Resource resource,
-                     GroupBy groupBy,
-                     Filter filter,
-                     LeftJoinWithClazz leftJoin,
-                     Persistence persistence,
-                     FieldsToDisplay fieldsToDisplay) {
+    public static Group get(Resource resource,
+                            GroupBy groupBy,
+                            Filter filter,
+                            LeftJoinWithClazz leftJoin,
+                            Persistence persistence,
+                            FieldsToDisplay fieldsToDisplay) {
         Clazz clazz = resource.getClazz();
         List<Long> idsFromLeftJoin = leftJoinFromDimensions(clazz, leftJoin, persistence);
 
@@ -87,11 +88,11 @@ public final class ResourceGetHandler {
         );
     }
 
-    public Group get(Resource resource,
-                     GroupBy groupBy,
-                     LeftJoinWithClazz leftJoin,
-                     Persistence persistence,
-                     FieldsToDisplay fieldsToDisplay) {
+    public static Group get(Resource resource,
+                            GroupBy groupBy,
+                            LeftJoinWithClazz leftJoin,
+                            Persistence persistence,
+                            FieldsToDisplay fieldsToDisplay) {
         Dimensions dimensions = getDimensions(resource, persistence);
         List<Long> idsToRemain = leftJoinFromDimensions(resource.getClazz(), leftJoin, persistence);
 
@@ -104,11 +105,11 @@ public final class ResourceGetHandler {
         );
     }
 
-    public Group get(Resource resource,
-                     GroupBy groupBy,
-                     Filter filter,
-                     Persistence persistence,
-                     FieldsToDisplay fieldsToDisplay) {
+    public static Group get(Resource resource,
+                            GroupBy groupBy,
+                            Filter filter,
+                            Persistence persistence,
+                            FieldsToDisplay fieldsToDisplay) {
         Dimensions dimensions = getDimensions(resource, persistence);
         List<Long> idsToRemain = filterFromDimensions(resource.getClazz(), filter, dimensions, persistence);
 
@@ -121,10 +122,10 @@ public final class ResourceGetHandler {
         );
     }
 
-    public Group get(Resource resource,
-                     GroupBy groupBy,
-                     Persistence persistence,
-                     FieldsToDisplay fieldsToDisplay) {
+    public static Group get(Resource resource,
+                            GroupBy groupBy,
+                            Persistence persistence,
+                            FieldsToDisplay fieldsToDisplay) {
         Dimensions dimensions = getDimensions(resource, persistence);
 
         return new Group(
@@ -135,30 +136,31 @@ public final class ResourceGetHandler {
         );
     }
 
-    public List<Entity> get(Resource resource,
-                            Filter filter,
-                            Persistence persistence) {
+    public static List<Entity> get(Resource resource,
+                                   Filter filter,
+                                   Persistence persistence) {
         return get(resource, filter, persistence, all());
     }
 
-    public List<Entity> get(Resource resource,
-                            Filter filter,
-                            Persistence persistence,
-                            FieldsToDisplay fieldsToDisplay) {
+    public static List<Entity> get(Resource resource,
+                                   Filter filter,
+                                   Persistence persistence,
+                                   FieldsToDisplay fieldsToDisplay) {
         Dimensions dimensions = getDimensions(resource, persistence);
 
         return filterFromDimensions(resource.getClazz(), filter, dimensions, persistence)
                 .stream()
                 .map(id -> getById(resource, id, persistence, fieldsToDisplay))
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    public List<Entity> get(Resource resource,
-                            Filter filter,
-                            LeftJoinWithClazz leftJoin,
-                            Persistence persistence,
-                            FieldsToDisplay fieldsToDisplay) {
+    public static List<Entity> get(Resource resource,
+                                   Filter filter,
+                                   LeftJoinWithClazz leftJoin,
+                                   Persistence persistence,
+                                   FieldsToDisplay fieldsToDisplay) {
         Clazz clazz = resource.getClazz();
         List<Long> idsFromLeftJoin = leftJoinFromDimensions(clazz, leftJoin, persistence);
         Dimensions dimensions = getDimensions(resource, persistence);
@@ -167,16 +169,17 @@ public final class ResourceGetHandler {
         return IdResultFlatMapper.intersect(idsFromFilter, idsFromLeftJoin)
                 .stream()
                 .map(id -> getById(resource, id, persistence, fieldsToDisplay))
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    public List<Entity> get(Resource resource,
-                            Filter filter,
-                            LeftJoinWithClazz leftJoin,
-                            Pagination pagination,
-                            Persistence persistence,
-                            FieldsToDisplay fieldsToDisplay) {
+    public static List<Entity> get(Resource resource,
+                                   Filter filter,
+                                   LeftJoinWithClazz leftJoin,
+                                   Pagination pagination,
+                                   Persistence persistence,
+                                   FieldsToDisplay fieldsToDisplay) {
         Clazz clazz = resource.getClazz();
         List<Long> idsFromLeftJoin = leftJoinFromDimensions(clazz, leftJoin, persistence);
         Dimensions dimensions = getDimensions(resource, persistence);
@@ -186,49 +189,53 @@ public final class ResourceGetHandler {
         return PaginationOfList.getPage(filteredIds, pagination.getPageNo(), pagination.getPerPage())
                 .stream()
                 .map(id -> getById(resource, id, persistence, fieldsToDisplay))
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    public List<Entity> get(Resource resource,
-                            LeftJoinWithClazz leftJoin,
-                            Persistence persistence,
-                            FieldsToDisplay fieldsToDisplay) {
+    public static List<Entity> get(Resource resource,
+                                   LeftJoinWithClazz leftJoin,
+                                   Persistence persistence,
+                                   FieldsToDisplay fieldsToDisplay) {
         Clazz clazz = resource.getClazz();
 
         return leftJoinFromDimensions(clazz, leftJoin, persistence)
                 .stream()
                 .map(id -> getById(resource, id, persistence, fieldsToDisplay))
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    public List<Entity> get(Resource resource,
-                            LeftJoinWithClazz leftJoin,
-                            Pagination pagination,
-                            Persistence persistence,
-                            FieldsToDisplay fieldsToDisplay) {
+    public static List<Entity> get(Resource resource,
+                                   LeftJoinWithClazz leftJoin,
+                                   Pagination pagination,
+                                   Persistence persistence,
+                                   FieldsToDisplay fieldsToDisplay) {
         Clazz clazz = resource.getClazz();
         List<Long> filteredIds = leftJoinFromDimensions(clazz, leftJoin, persistence);
 
         return PaginationOfList.getPage(filteredIds, pagination.getPageNo(), pagination.getPerPage())
                 .stream()
                 .map(id -> getById(resource, id, persistence, fieldsToDisplay))
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    public List<Entity> get(Resource resource,
-                            Filter filter,
-                            Pagination pagination,
-                            Persistence persistence,
-                            FieldsToDisplay fieldsToDisplay) {
+    public static List<Entity> get(Resource resource,
+                                   Filter filter,
+                                   Pagination pagination,
+                                   Persistence persistence,
+                                   FieldsToDisplay fieldsToDisplay) {
         Dimensions dimensions = getDimensions(resource, persistence);
         List<Long> filteredIds = filterFromDimensions(resource.getClazz(), filter, dimensions, persistence);
 
         return PaginationOfList.getPage(filteredIds, pagination.getPageNo(), pagination.getPerPage())
                 .stream()
                 .map(id -> getById(resource, id, persistence, fieldsToDisplay))
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
     }

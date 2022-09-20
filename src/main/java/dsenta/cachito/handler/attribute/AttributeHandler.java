@@ -1,8 +1,8 @@
 package dsenta.cachito.handler.attribute;
 
 import dsenta.cachito.cache.clazz.ClazzCache;
-import dsenta.cachito.exception.AttributeDoesNotExistException;
-import dsenta.cachito.exception.DimensionDoesNotExistException;
+import dsenta.cachito.exception.attribute.AttributeDoesNotExistException;
+import dsenta.cachito.exception.dimension.DimensionDoesNotExistException;
 import dsenta.cachito.handler.dimension.DimensionHandler;
 import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.attribute.DataType;

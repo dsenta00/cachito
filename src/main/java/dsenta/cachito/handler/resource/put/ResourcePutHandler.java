@@ -1,7 +1,7 @@
 package dsenta.cachito.handler.resource.put;
 
-import dsenta.cachito.exception.FailedToFetchEntityException;
-import dsenta.cachito.exception.IdNotProvidedException;
+import dsenta.cachito.exception.entity.FailedToFetchEntityException;
+import dsenta.cachito.exception.resource.IdNotProvidedException;
 import dsenta.cachito.factory.objectinstance.ObjectInstanceFactory;
 import dsenta.cachito.model.entity.Entity;
 import dsenta.cachito.model.fields.FieldsToDisplay;
@@ -9,6 +9,7 @@ import dsenta.cachito.model.objectinstance.ObjectInstance;
 import dsenta.cachito.model.persistence.Persistence;
 import dsenta.cachito.model.resource.Resource;
 import dsenta.cachito.utils.CustomObjectMapper;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,11 +24,17 @@ import static dsenta.cachito.handler.dimension.DimensionHandler.insertIdIntoDime
 import static dsenta.cachito.mapper.entity.EntryToEntityMapper.toEntity;
 import static dsenta.cachito.model.fields.FieldsToDisplay.all;
 import static dsenta.cachito.utils.StackUtils.cloneReversedStack;
+import static lombok.AccessLevel.PRIVATE;
 
+@NoArgsConstructor(access = PRIVATE)
 public final class ResourcePutHandler {
 
     public static <T> Entity put(Resource resource, T object, Persistence persistence) {
         return put(resource, CustomObjectMapper.convert(object), persistence);
+    }
+
+    public static <T> Entity put(Resource resource, T object, Persistence persistence, FieldsToDisplay fieldsToDisplay) {
+        return put(resource, CustomObjectMapper.convert(object), persistence, fieldsToDisplay);
     }
 
     public static Entity put(Resource resource, Map<String, Object> object, Persistence persistence) {

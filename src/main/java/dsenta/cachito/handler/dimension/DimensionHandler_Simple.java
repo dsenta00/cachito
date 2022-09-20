@@ -1,15 +1,20 @@
 package dsenta.cachito.handler.dimension;
 
+import dsenta.cachito.exception.FilterByNullValueException;
+import dsenta.cachito.exception.attribute.AttributeDoesNotExistException;
+import dsenta.cachito.exception.attribute.AttributeNotProvidedException;
+import dsenta.cachito.exception.attribute.UnsupportedDataTypeException;
+import dsenta.cachito.exception.dimension.AddingNullToDimensionException;
+import dsenta.cachito.exception.dimension.DimensionDoesNotExistException;
 import dsenta.cachito.mapper.dimension.IdResultFlatMapper;
+import dsenta.cachito.model.attribute.Attribute;
+import dsenta.cachito.model.clazz.Clazz;
 import dsenta.cachito.model.dimension.Dimension;
 import dsenta.cachito.model.dimension.Dimensions;
-import dsenta.cachito.exception.AddingNullToDimensionException;
-import dsenta.cachito.exception.AttributeNotProvidedException;
-import dsenta.cachito.exception.DimensionDoesNotExistException;
-import dsenta.cachito.exception.FilterByNullValueException;
-import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.filter.AndWhere;
 import dsenta.cachito.model.filter.Filter;
+import dsenta.cachito.model.group.GroupResult;
+import dsenta.cachito.model.groupby.GroupBy;
 import dsenta.cachito.model.objectinstance.ObjectInstance;
 import dsenta.cachito.model.resource.Resource;
 import lombok.NoArgsConstructor;
@@ -28,6 +33,25 @@ public final class DimensionHandler_Simple {
 
     public static Dimensions getDimensions(Resource resource) {
         return resource.getDimensions();
+    }
+
+    public static List<GroupResult> groupFromDimensions(Clazz clazz,
+                                                        GroupBy groupBy,
+                                                        Dimensions dimensions) {
+        Optional<Attribute> attributeOptional = clazz.getAttribute(groupBy.getAttribute());
+
+        if (attributeOptional.isEmpty()) {
+            throw new AttributeDoesNotExistException(groupBy.getAttribute());
+        }
+
+        var attribute = attributeOptional.get();
+        if (!dimensions.containsKey(groupBy.getAttribute())) {
+            throw new DimensionDoesNotExistException(attribute);
+        }
+
+        Dimension<?> dimension = dimensions.get(groupBy.getAttribute());
+
+        return groupFromDimension(groupBy, attribute, dimension);
     }
 
     public static void removeIdFromDimensions(Dimensions dimensions,
@@ -135,6 +159,23 @@ public final class DimensionHandler_Simple {
                     .orElseThrow(() -> new DimensionDoesNotExistException(attribute));
 
             insertIdIntoDimension(dimension, object, id, attribute);
+        }
+    }
+
+    private static List<GroupResult> groupFromDimension(GroupBy groupBy, Attribute attribute, Dimension<?> dimension) {
+        switch (attribute.getDataType()) {
+            case BOOLEAN:
+                return BoolDimensionHandler.groupBy(dimension.toBoolDimension(), groupBy);
+            case STRING:
+                return StringDimensionHandler.groupBy(dimension.toStringDimension(), groupBy);
+            case INTEGER:
+                return IntDimensionHandler.groupBy(dimension.toIntDimension(), attribute, groupBy);
+            case FLOAT:
+                return FloatDimensionHandler.groupBy(dimension.toFloatDimension(), attribute, groupBy);
+            case DATE:
+                return DateDimensionHandler.groupBy(dimension.toDateDimension(), attribute, groupBy);
+            default:
+                throw new UnsupportedDataTypeException(attribute.getDataType());
         }
     }
 

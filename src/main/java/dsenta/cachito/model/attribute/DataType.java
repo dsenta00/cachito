@@ -1,7 +1,7 @@
 package dsenta.cachito.model.attribute;
 
 import dsenta.cachito.constants.attribute.DataTypeConstants;
-import dsenta.cachito.exception.UnsupportedDataTypeException;
+import dsenta.cachito.exception.attribute.UnsupportedDataTypeException;
 import dsenta.queryablemap.exception.ShouldNeverHappenException;
 
 import java.time.Instant;

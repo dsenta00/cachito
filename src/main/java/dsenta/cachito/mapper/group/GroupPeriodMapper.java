@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static dsenta.cachito.action.resource.ResourceAction.get;
+import static dsenta.cachito.handler.resource.get.ResourceGetHandler.getById;
 import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)
@@ -25,7 +25,7 @@ public final class GroupPeriodMapper {
                 groupResult.getTo(),
                 groupResult.getPeriodName(),
                 groupResult.getIds().stream()
-                        .map(id -> get().stream().getById(resource, id, persistence, fieldsToDisplay))
+                        .map(id -> getById(resource, id, persistence, fieldsToDisplay))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
                         .collect(Collectors.toList())

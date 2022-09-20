@@ -1,6 +1,6 @@
 package dsenta.cachito.utils;
 
-import dsenta.cachito.exception.AttributeValueTypeMismatchException;
+import dsenta.cachito.exception.attribute.AttributeValueTypeMismatchException;
 import dsenta.cachito.model.attribute.DataType;
 
 import java.text.DateFormat;

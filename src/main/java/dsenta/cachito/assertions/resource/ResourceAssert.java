@@ -1,7 +1,6 @@
 package dsenta.cachito.assertions.resource;
 
-import dsenta.cachito.action.resource.ResourceAction;
-import dsenta.cachito.exception.UniqueConstraintException;
+import dsenta.cachito.exception.resource.UniqueConstraintException;
 import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.clazz.Clazz;
 import dsenta.cachito.model.entity.Entity;
@@ -14,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.stream.Collectors;
 
+import static dsenta.cachito.handler.resource.get.ResourceGetHandler.get;
 import static dsenta.cachito.mapper.attribute.AndWhereMapper.toAndWhereEqualsForConstraint;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -37,8 +37,7 @@ public final class ResourceAssert {
 
         var filter = new Filter(andWhereEqualsList);
 
-        ResourceAction.get().stream()
-                .get(resource, filter, persistence)
+        get(resource, filter, persistence)
                 .stream()
                 .map(Entity::getId)
                 .filter(o -> !o.equals(id))

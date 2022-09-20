@@ -2,7 +2,7 @@ package dsenta.cachito.handler.dimension;
 
 import dsenta.cachito.model.dimension.DateDimension;
 import dsenta.cachito.model.group.GroupResult;
-import dsenta.cachito.exception.AttributeValueTypeMismatchException;
+import dsenta.cachito.exception.attribute.AttributeValueTypeMismatchException;
 import dsenta.cachito.exception.UnsupportedGroupIntervalException;
 import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.attribute.DataType;

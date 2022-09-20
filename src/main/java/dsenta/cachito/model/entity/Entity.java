@@ -1,6 +1,6 @@
 package dsenta.cachito.model.entity;
 
-import dsenta.cachito.exception.AttributeDoesNotExistException;
+import dsenta.cachito.exception.attribute.AttributeDoesNotExistException;
 import dsenta.cachito.mapper.entity.EntityToClonedEntityMapper;
 import dsenta.cachito.mapper.entity.EntityToStringMapper;
 import dsenta.cachito.mapper.entity.EntityToStringMapper_Simple;

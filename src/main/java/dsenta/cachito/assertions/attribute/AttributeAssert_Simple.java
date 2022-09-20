@@ -1,6 +1,6 @@
 package dsenta.cachito.assertions.attribute;
 
-import dsenta.cachito.exception.AttributeDoesNotExistException;
+import dsenta.cachito.exception.attribute.AttributeDoesNotExistException;
 import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.clazz.Clazz;
 import lombok.NoArgsConstructor;

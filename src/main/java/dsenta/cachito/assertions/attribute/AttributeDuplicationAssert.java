@@ -1,6 +1,6 @@
 package dsenta.cachito.assertions.attribute;
 
-import dsenta.cachito.exception.AddingAttributeWithSameNameException;
+import dsenta.cachito.exception.attribute.AddingAttributeWithSameNameException;
 import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.clazz.Clazz;
 import lombok.NoArgsConstructor;

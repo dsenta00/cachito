@@ -1,7 +1,7 @@
 package dsenta.cachito.mapper.attribute;
 
-import dsenta.cachito.exception.ResourceNotFoundException;
-import dsenta.cachito.exception.UnsupportedDataTypeException;
+import dsenta.cachito.exception.resource.ResourceNotFoundException;
+import dsenta.cachito.exception.attribute.UnsupportedDataTypeException;
 import dsenta.cachito.mapper.objectinstance.BooleanMapper;
 import dsenta.cachito.mapper.objectinstance.FloatMapper;
 import dsenta.cachito.mapper.objectinstance.IntMapper;

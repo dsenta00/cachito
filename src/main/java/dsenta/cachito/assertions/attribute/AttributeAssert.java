@@ -2,6 +2,9 @@ package dsenta.cachito.assertions.attribute;
 
 import dsenta.cachito.cache.clazz.ClazzCache;
 import dsenta.cachito.exception.*;
+import dsenta.cachito.exception.attribute.AttributeDoesNotExistException;
+import dsenta.cachito.exception.attribute.CannotAlterOverriddenAttributeException;
+import dsenta.cachito.exception.resource.NotDefinedResourceForRelationshipException;
 import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.clazz.Clazz;
 import dsenta.cachito.model.persistence.Persistence;

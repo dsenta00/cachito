@@ -1,6 +1,6 @@
 package dsenta.cachito.factory.dimension;
 
-import dsenta.cachito.exception.UnsupportedDataTypeException;
+import dsenta.cachito.exception.attribute.UnsupportedDataTypeException;
 import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.attribute.DataType;
 import dsenta.cachito.model.clazz.Clazz;

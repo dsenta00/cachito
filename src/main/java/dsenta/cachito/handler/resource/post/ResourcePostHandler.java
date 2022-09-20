@@ -1,9 +1,8 @@
 package dsenta.cachito.handler.resource.post;
 
-import dsenta.cachito.action.resource.ResourceAction;
-import dsenta.cachito.exception.FailedToFetchEntityException;
-import dsenta.cachito.exception.FailedToPersistEntityException;
-import dsenta.cachito.exception.PostForceIdException;
+import dsenta.cachito.exception.entity.FailedToFetchEntityException;
+import dsenta.cachito.exception.entity.FailedToPersistEntityException;
+import dsenta.cachito.exception.resource.PostForceIdException;
 import dsenta.cachito.factory.objectinstance.ObjectInstanceFactory;
 import dsenta.cachito.model.entity.Entity;
 import dsenta.cachito.model.fields.FieldsToDisplay;
@@ -13,6 +12,8 @@ import dsenta.cachito.model.resource.Resource;
 import dsenta.cachito.repository.resource.PersistableResource;
 import dsenta.cachito.utils.CustomObjectMapper;
 import dsenta.cachito.utils.UUIDConverter;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,30 +23,40 @@ import static dsenta.cachito.assertions.resource.ResourceAssert.assertUniqueCons
 import static dsenta.cachito.factory.resource.ResourceStackFactory.createResourceStack;
 import static dsenta.cachito.handler.dimension.DimensionHandler.insertIdIntoDimensions;
 import static dsenta.cachito.handler.resource.delete.ResourceDeleteHandler.delete;
+import static dsenta.cachito.handler.resource.get.ResourceGetHandler.getById;
 import static dsenta.cachito.mapper.entity.EntryToEntityMapper.toEntity;
+import static dsenta.cachito.model.fields.FieldsToDisplay.all;
 import static dsenta.cachito.utils.StackUtils.cloneReversedStack;
 import static java.util.Map.entry;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ResourcePostHandler {
 
-    public <T> Entity post(Resource resource, T object, Persistence persistence) {
-        return post(resource, CustomObjectMapper.convert(object), persistence, FieldsToDisplay.all());
+    public static <T> Entity post(Resource resource, T object, Persistence persistence) {
+        return post(resource, CustomObjectMapper.convert(object), persistence, all());
     }
 
-    public synchronized Entity post(Resource resource,
-                                    Map<String, Object> object,
-                                    Persistence persistence,
-                                    FieldsToDisplay fieldsToDisplay) {
+    public static <T> Entity post(Resource resource,
+                                  T object,
+                                  Persistence persistence,
+                                  FieldsToDisplay fieldsToDisplay) {
+        return post(resource, CustomObjectMapper.convert(object), persistence, fieldsToDisplay);
+    }
+
+    public synchronized static Entity post(Resource resource,
+                                           Map<String, Object> object,
+                                           Persistence persistence,
+                                           FieldsToDisplay fieldsToDisplay) {
         return toEntity(post(resource, object, persistence), resource, persistence)
                 .map(entity -> entity.clonePartially(fieldsToDisplay))
                 .orElseThrow(FailedToFetchEntityException::new);
     }
 
-    public Entry<Long, ObjectInstance> post(Resource resource,
-                                            Map<String, Object> object,
-                                            Persistence persistence) {
+    public static Entry<Long, ObjectInstance> post(Resource resource,
+                                                   Map<String, Object> object,
+                                                   Persistence persistence) {
         var resourceStack = createResourceStack(resource, persistence);
         var objectInstanceStack = createObjectInstanceStack(resourceStack, object);
 
@@ -76,11 +87,11 @@ public final class ResourcePostHandler {
         return objectInstanceWithId;
     }
 
-    private Entry<Long, ObjectInstance> postSingle(Long id,
-                                                   Resource resource,
-                                                   Map<String, Object> object,
-                                                   ObjectInstance objectInstance,
-                                                   Persistence persistence) {
+    private static Entry<Long, ObjectInstance> postSingle(Long id,
+                                                          Resource resource,
+                                                          Map<String, Object> object,
+                                                          ObjectInstance objectInstance,
+                                                          Persistence persistence) {
         var clazz = resource.getClazz();
         var parentClazz = clazz.getParentClazz();
         var parentResource = PersistableResource.get(parentClazz, persistence);
@@ -103,16 +114,15 @@ public final class ResourcePostHandler {
         return entry(id, persistedInstance);
     }
 
-    private Entry<Long, ObjectInstance> postSingle(Resource resource,
-                                                   Map<String, Object> object,
-                                                   ObjectInstance objectInstance,
-                                                   Persistence persistence) {
+    private static Entry<Long, ObjectInstance> postSingle(Resource resource,
+                                                          Map<String, Object> object,
+                                                          ObjectInstance objectInstance,
+                                                          Persistence persistence) {
         var idObj = object.getOrDefault("id", null);
 
         if (nonNull(idObj)) {
             long relatedId = UUIDConverter.asLong(idObj.toString());
-            return ResourceAction.get().stream()
-                    .getById(resource, relatedId, persistence)
+            return getById(resource, relatedId, persistence)
                     .map(entity -> entry(entity.getId(), entity.getObjectInstance()))
                     .orElseThrow(() -> new PostForceIdException(relatedId, resource.getClazz().getResourceInfo().getName()));
         }
@@ -133,8 +143,8 @@ public final class ResourcePostHandler {
         return entry(id, persistedInstance);
     }
 
-    private Stack<ObjectInstance> createObjectInstanceStack(Stack<Resource> resourceStack,
-                                                            Map<String, Object> object) {
+    private static Stack<ObjectInstance> createObjectInstanceStack(Stack<Resource> resourceStack,
+                                                                   Map<String, Object> object) {
         var objectInstanceStack = new Stack<ObjectInstance>();
         var reversedResourceStack = cloneReversedStack(resourceStack);
 

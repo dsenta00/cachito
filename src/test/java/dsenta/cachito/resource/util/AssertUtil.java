@@ -1,6 +1,6 @@
 package dsenta.cachito.resource.util;
 
-import dsenta.cachito.action.resource.ResourceAction;
+import dsenta.cachito.handler.resource.get.ResourceGetHandler;
 import dsenta.cachito.model.clazz.Clazz;
 import dsenta.cachito.model.entity.Entity;
 import dsenta.cachito.model.filter.AndWhere;
@@ -29,7 +29,7 @@ public final class AssertUtil {
                                    Clazz clazz,
                                    AssertCallbackEntityList assertCallbackEntityList) {
         Resource resource = PersistableResource.get(clazz, persistence);
-        List<Entity> entities = ResourceAction.get().stream().get(resource, pagination, persistence, all());
+        List<Entity> entities = ResourceGetHandler.get(resource, pagination, persistence, all());
         assertCallbackEntityList.assertEntityList(entities);
     }
 
@@ -38,7 +38,7 @@ public final class AssertUtil {
                                    Clazz clazz,
                                    AssertCallbackEntityList assertCallbackEntityList) {
         Resource resource = PersistableResource.get(clazz, persistence);
-        List<Entity> entities = ResourceAction.get().stream().get(resource, new Filter(andWhereList), pagination, persistence, all());
+        List<Entity> entities = ResourceGetHandler.get(resource, new Filter(andWhereList), pagination, persistence, all());
         assertCallbackEntityList.assertEntityList(entities);
     }
 
@@ -46,7 +46,7 @@ public final class AssertUtil {
                                    Clazz clazz,
                                    AssertCallbackEntityList assertCallbackEntityList) {
         Resource resource = PersistableResource.get(clazz, persistence);
-        List<Entity> entities = ResourceAction.get().stream().get(resource, new Filter(andWhereList), persistence, all());
+        List<Entity> entities = ResourceGetHandler.get(resource, new Filter(andWhereList), persistence, all());
         assertCallbackEntityList.assertEntityList(entities);
     }
 
@@ -55,7 +55,7 @@ public final class AssertUtil {
                                    Clazz clazz,
                                    AssertCallbackEntityList assertCallbackEntityList) {
         Resource resource = PersistableResource.get(clazz, persistence);
-        List<Entity> entities = ResourceAction.get().stream().get(resource, new Filter(andWhereList), leftJoin, persistence, all());
+        List<Entity> entities = ResourceGetHandler.get(resource, new Filter(andWhereList), leftJoin, persistence, all());
         assertCallbackEntityList.assertEntityList(entities);
     }
 
@@ -63,7 +63,7 @@ public final class AssertUtil {
                                    Clazz clazz,
                                    AssertCallbackEntityGroup assertCallbackEntityGroup) {
         Resource resource = PersistableResource.get(clazz, persistence);
-        Group group = ResourceAction.get().stream().get(resource, groupBy, persistence, all());
+        Group group = ResourceGetHandler.get(resource, groupBy, persistence, all());
         assertCallbackEntityGroup.assertGroup(group);
     }
 
@@ -72,7 +72,7 @@ public final class AssertUtil {
                                    Clazz clazz,
                                    AssertCallbackEntityGroup assertCallbackEntityGroup) {
         Resource resource = PersistableResource.get(clazz, persistence);
-        Group group = ResourceAction.get().stream().get(resource, groupBy, new Filter(andWhereList), persistence, all());
+        Group group = ResourceGetHandler.get(resource, groupBy, new Filter(andWhereList), persistence, all());
         assertCallbackEntityGroup.assertGroup(group);
     }
 }

@@ -2,7 +2,7 @@ package dsenta.cachito.handler.dimension;
 
 import dsenta.cachito.model.group.GroupResult;
 import dsenta.cachito.model.dimension.IntDimension;
-import dsenta.cachito.exception.AttributeValueTypeMismatchException;
+import dsenta.cachito.exception.attribute.AttributeValueTypeMismatchException;
 import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.attribute.DataType;
 import dsenta.cachito.model.groupby.GroupBy;

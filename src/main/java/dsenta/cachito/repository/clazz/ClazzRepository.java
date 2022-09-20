@@ -1,7 +1,7 @@
 package dsenta.cachito.repository.clazz;
 
-import dsenta.cachito.exception.CannotDropParentResourceException;
-import dsenta.cachito.exception.CannotDropResource_RelationshipFromOtherResourceException;
+import dsenta.cachito.exception.resource.CannotDropParentResourceException;
+import dsenta.cachito.exception.resource.CannotDropResource_RelationshipFromOtherResourceException;
 import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.attribute.DataType;
 import dsenta.cachito.model.clazz.Clazz;
@@ -9,6 +9,7 @@ import dsenta.cachito.model.resource.info.ResourceInfo;
 import dsenta.queryablemap.trie.Trie;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,7 +19,7 @@ import static java.util.Objects.nonNull;
 
 public class ClazzRepository {
 
-    private final Trie<ResourceInfo, Clazz> clazzMap = new Trie<>();
+    private final Map<ResourceInfo, Clazz> clazzMap = new Trie<>();
 
     public Stream<Clazz> stream() {
         return clazzMap.values().stream();

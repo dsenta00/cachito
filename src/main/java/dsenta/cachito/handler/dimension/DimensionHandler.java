@@ -1,7 +1,17 @@
 package dsenta.cachito.handler.dimension;
 
-import dsenta.cachito.action.resource.ResourceAction;
-import dsenta.cachito.exception.*;
+import dsenta.cachito.exception.FilterByNullValueException;
+import dsenta.cachito.exception.RelationshipOneManyNoObjectException;
+import dsenta.cachito.exception.RelationshipOneNoObjectException;
+import dsenta.cachito.exception.attribute.AttributeDoesNotExistException;
+import dsenta.cachito.exception.attribute.AttributeNotProvidedException;
+import dsenta.cachito.exception.attribute.AttributeNotRelationshipException;
+import dsenta.cachito.exception.attribute.UnsupportedDataTypeException;
+import dsenta.cachito.exception.dimension.AddingNullToDimensionException;
+import dsenta.cachito.exception.dimension.DimensionDoesNotExistException;
+import dsenta.cachito.exception.resource.ResourceDoesNotMatchOnLeftJoinException;
+import dsenta.cachito.exception.resource.ResourceNotFoundException;
+import dsenta.cachito.handler.resource.get.ResourceGetHandler;
 import dsenta.cachito.mapper.dimension.IdResultFlatMapper;
 import dsenta.cachito.mapper.objectinstance.IntMapper;
 import dsenta.cachito.model.attribute.Attribute;
@@ -28,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static dsenta.cachito.factory.dimension.DimensionFactory.convertDimension;
 import static dsenta.cachito.factory.dimension.DimensionFactory.createDimension;
+import static dsenta.cachito.handler.resource.post.ResourcePostHandler.post;
 import static dsenta.cachito.model.attribute.DataType.isRelationship;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -109,7 +120,7 @@ public final class DimensionHandler {
                                     FieldsToDisplay.all();
 
                             groupResult.setFrom(
-                                    ResourceAction.get().stream()
+                                    ResourceGetHandler
                                             .getById(relatedResource, id, persistence, fieldsOfAttributeToDisplay)
                                             .orElseThrow(() -> new ResourceNotFoundException(attribute.getClazz().getName(), id))
                             );
@@ -528,9 +539,6 @@ public final class DimensionHandler {
             return IntMapper.toLongInt(mappedObject.get("id"));
         }
 
-        return ResourceAction.post()
-                .stream()
-                .post(relatedResource, mappedObject, persistence)
-                .getKey();
+        return post(relatedResource, mappedObject, persistence).getKey();
     }
 }

@@ -1,6 +1,6 @@
 package dsenta.cachito.mapper.objectinstance;
 
-import dsenta.cachito.exception.AttributeValueTypeMismatchException;
+import dsenta.cachito.exception.attribute.AttributeValueTypeMismatchException;
 import dsenta.cachito.model.attribute.DataType;
 import dsenta.cachito.utils.DateIso8601;
 import lombok.AccessLevel;

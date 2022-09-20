@@ -2,7 +2,7 @@ package dsenta.cachito.model.clazz;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import dsenta.cachito.exception.AttributeDoesNotExistException;
+import dsenta.cachito.exception.attribute.AttributeDoesNotExistException;
 import dsenta.cachito.mapper.clazz.ClazzToClonedClazzMapper;
 import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.fields.FieldsToDisplay;

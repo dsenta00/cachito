@@ -5,10 +5,10 @@ import dsenta.cachito.model.clazz.Clazz;
 import dsenta.cachito.model.function.Function2;
 import dsenta.cachito.model.persistence.Persistence;
 import dsenta.cachito.model.resource.Resource;
-import dsenta.queryablemap.QueryableMap;
 import dsenta.queryablemap.trie.Trie;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -17,7 +17,7 @@ import static java.util.Objects.nonNull;
 @NoArgsConstructor
 public class ResourceCache {
 
-    protected final QueryableMap<Clazz, Resource> resourceMap = new Trie<>();
+    protected final Map<Clazz, Resource> resourceMap = new Trie<>();
 
     public Resource create(Clazz clazz,
                            boolean ifNotExists,

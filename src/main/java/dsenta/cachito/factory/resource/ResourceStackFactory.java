@@ -1,6 +1,6 @@
 package dsenta.cachito.factory.resource;
 
-import dsenta.cachito.exception.EntityNotFoundException;
+import dsenta.cachito.exception.entity.EntityNotFoundException;
 import dsenta.cachito.model.clazz.Clazz;
 import dsenta.cachito.model.objectinstance.ObjectInstance;
 import dsenta.cachito.model.persistence.Persistence;

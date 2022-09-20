@@ -1,15 +1,14 @@
 package dsenta.cachito.assertions.clazz;
 
-import dsenta.cachito.action.resource.ResourceAction;
+import dsenta.cachito.Cachito;
 import dsenta.cachito.assertions.attribute.AttributeAssert;
 import dsenta.cachito.cache.clazz.ClazzCache;
-import dsenta.cachito.exception.CannotOverrideDataTypeException;
-import dsenta.cachito.exception.IdAlreadyExistsInChildResourceException;
+import dsenta.cachito.exception.attribute.CannotOverrideDataTypeException;
+import dsenta.cachito.exception.resource.IdAlreadyExistsInChildResourceException;
 import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.clazz.Clazz;
 import dsenta.cachito.model.clazzalter.ClazzAlter;
 import dsenta.cachito.model.persistence.Persistence;
-import dsenta.cachito.repository.resource.PersistableResource;
 import lombok.NoArgsConstructor;
 
 import java.util.Objects;
@@ -22,13 +21,14 @@ import static lombok.AccessLevel.PRIVATE;
 public final class ClazzAssert {
 
     public static void idDoesNotExistInChildTable(Clazz clazz, Long id, Persistence persistence) {
-        ClazzCache.stream().getChildClazzes(clazz).stream()
-                .map(childClazz -> PersistableResource.get(childClazz, persistence))
-                .forEach(childResource -> {
-                    if (ResourceAction.get().stream().getById(childResource, id, persistence).isPresent()) {
-                        throw new IdAlreadyExistsInChildResourceException(id, childResource.getClazz().getName());
-                    }
-                });
+        ClazzCache.stream().getChildClazzes(clazz).forEach(childClazz ->
+                Cachito.clazz(childClazz)
+                        .persistence(persistence)
+                        .getById(id)
+                        .ifPresent(entity -> {
+                            throw new IdAlreadyExistsInChildResourceException(id, entity.getClazz().getName());
+                        })
+        );
     }
 
     public static void canCreate(Clazz inputClazz, Persistence persistence) {
