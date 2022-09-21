@@ -23,6 +23,15 @@ public final class ResourceDeleteHandler {
         }
     }
 
+    public static void delete(Resource resource, Long id) {
+        idDoesNotExistInChildTable(resource.getClazz(), id);
+        var stack = createResourceStack(resource);
+
+        while (!stack.isEmpty()) {
+            deleteFromResource(stack.pop(), id);
+        }
+    }
+
     private static void deleteFromResource(Resource resource, Long id, Persistence persistence) {
         var entry = resource.getObjectInstances().getByKey(id);
 
@@ -32,6 +41,18 @@ public final class ResourceDeleteHandler {
 
         removeIdFromResourceDimensions(resource, id, entry.getValue());
         removeIdFromRelatedResourceDimensions(resource, id, persistence);
+        resource.getObjectInstances().remove(id);
+    }
+
+    private static void deleteFromResource(Resource resource, Long id) {
+        var entry = resource.getObjectInstances().getByKey(id);
+
+        if (isNull(entry)) {
+            return;
+        }
+
+        removeIdFromResourceDimensions(resource, id, entry.getValue());
+        removeIdFromRelatedResourceDimensions(resource, id);
         resource.getObjectInstances().remove(id);
     }
 }

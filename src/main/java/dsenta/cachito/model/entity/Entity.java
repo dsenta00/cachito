@@ -80,7 +80,6 @@ public class Entity implements Comparable<Entity> {
         }
     }
 
-
     public Entity clonePartially(FieldsToDisplay fieldsToDisplay) {
         return EntityToClonedEntityMapper.clonePartially(this, fieldsToDisplay);
     }

@@ -1,5 +1,8 @@
 package dsenta.cachito.builder;
 
+import dsenta.cachito.assertions.clazz.ClazzAssert;
+import dsenta.cachito.assertions.clazz.ClazzAssert_Simple;
+import dsenta.cachito.cache.clazz.ClazzCache;
 import dsenta.cachito.exception.LeftJoinOnSimpleResourceException;
 import dsenta.cachito.handler.resource.alter.ResourceAlterHandler;
 import dsenta.cachito.handler.resource.alter.ResourceAlterHandler_Simple;
@@ -40,6 +43,7 @@ import java.util.function.Consumer;
 
 import static dsenta.cachito.model.fields.FieldsToDisplay.all;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Builder
 @Data
@@ -56,7 +60,7 @@ public class PersistableCachitoBuilder {
         return this;
     }
 
-    public PersistableCachitoBuilder persistence(Persistence persistence) {
+    public PersistableCachitoBuilder persistable(Persistence persistence) {
         setPersistence(persistence);
         return this;
     }
@@ -64,6 +68,78 @@ public class PersistableCachitoBuilder {
     public PersistableCachitoBuilder meanwhile(Consumer<Resource> consumer) {
         fetchResource();
         consumer.accept(resource);
+        return this;
+    }
+
+    public PersistableCachitoBuilder create(Clazz clazz, boolean ifNotExist) {
+        setClazz(clazz);
+
+        if (clazz.isCache()) {
+            if (clazz.isSimple()) {
+                resource = NonPersistableResource.create(clazz, ifNotExist, ClazzAssert_Simple::canCreate);
+                ClazzCache.simpleStream().put(clazz.getResourceInfo(), clazz);
+            } else {
+                resource = NonPersistableResource.create(clazz, ifNotExist, ClazzAssert::canCreate);
+                ClazzCache.stream().put(clazz.getResourceInfo(), clazz);
+            }
+        } else {
+            resource = PersistableResource.create(clazz, ifNotExist, ClazzAssert::canCreate, persistence);
+        }
+
+        if (clazz.isSimple()) {
+            ClazzCache.simpleStream().put(clazz.getResourceInfo(), clazz);
+
+            if (clazz.isCache()) {
+                resource = NonPersistableResource.create(clazz, ifNotExist, ClazzAssert_Simple::canCreate);
+            } else {
+                resource = PersistableResource.create(clazz, ifNotExist, ClazzAssert::canCreate, persistence);
+            }
+        } else {
+            ClazzCache.stream().put(clazz.getResourceInfo(), clazz);
+
+            if (clazz.isCache()) {
+                resource = NonPersistableResource.create(clazz, ifNotExist, ClazzAssert::canCreate);
+            } else {
+                resource = PersistableResource.create(clazz, ifNotExist, ClazzAssert::canCreate, persistence);
+            }
+        }
+
+        return this;
+    }
+
+    public PersistableCachitoBuilder create(Clazz clazz) {
+        setClazz(clazz);
+
+        if (clazz.isCache()) {
+            if (clazz.isSimple()) {
+                resource = NonPersistableResource.create(clazz, ClazzAssert_Simple::canCreate);
+                ClazzCache.simpleStream().put(clazz.getResourceInfo(), clazz);
+            } else {
+                resource = NonPersistableResource.create(clazz, ClazzAssert::canCreate);
+                ClazzCache.stream().put(clazz.getResourceInfo(), clazz);
+            }
+        } else {
+            resource = PersistableResource.create(clazz, ClazzAssert::canCreate, persistence);
+        }
+
+        if (clazz.isSimple()) {
+            ClazzCache.simpleStream().put(clazz.getResourceInfo(), clazz);
+
+            if (clazz.isCache()) {
+                resource = NonPersistableResource.create(clazz, ClazzAssert_Simple::canCreate);
+            } else {
+                resource = PersistableResource.create(clazz, ClazzAssert::canCreate, persistence);
+            }
+        } else {
+            ClazzCache.stream().put(clazz.getResourceInfo(), clazz);
+
+            if (clazz.isCache()) {
+                resource = NonPersistableResource.create(clazz, ClazzAssert::canCreate);
+            } else {
+                resource = PersistableResource.create(clazz, ClazzAssert::canCreate, persistence);
+            }
+        }
+
         return this;
     }
 
@@ -91,24 +167,40 @@ public class PersistableCachitoBuilder {
         return this;
     }
 
-    public void drop() {
+    public PersistableCachitoBuilder drop() {
         fetchResource();
 
-        if (clazz.isSimple()) {
-            ResourceDropHandler_Simple.drop(clazz, persistence);
-        } else {
-            ResourceDropHandler.drop(clazz, persistence);
+        if (nonNull(resource)) {
+            if (clazz.isSimple()) {
+                if (clazz.isCache()) {
+                    ResourceDropHandler_Simple.drop(clazz);
+                } else {
+                    ResourceDropHandler_Simple.drop(clazz, persistence);
+                }
+            } else {
+                if (clazz.isCache()) {
+                    ResourceDropHandler.drop(clazz);
+                } else {
+                    ResourceDropHandler.drop(clazz, persistence);
+                }
+            }
         }
+
+        return this;
     }
 
-    public void dropForce() {
+    public PersistableCachitoBuilder dropForce() {
         fetchResource();
 
-        if (clazz.isSimple()) {
-            ResourceDropHandler_Simple.dropForce(clazz, persistence);
-        } else {
-            ResourceDropHandler.dropForce(clazz, persistence);
+        if (nonNull(resource)) {
+            if (clazz.isSimple()) {
+                ResourceDropHandler_Simple.dropForce(clazz, persistence);
+            } else {
+                ResourceDropHandler.dropForce(clazz, persistence);
+            }
         }
+
+        return this;
     }
 
     public List<Entity> get() {

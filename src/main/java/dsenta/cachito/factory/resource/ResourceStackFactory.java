@@ -5,6 +5,7 @@ import dsenta.cachito.model.clazz.Clazz;
 import dsenta.cachito.model.objectinstance.ObjectInstance;
 import dsenta.cachito.model.persistence.Persistence;
 import dsenta.cachito.model.resource.Resource;
+import dsenta.cachito.repository.resource.NonPersistableResource;
 import dsenta.cachito.repository.resource.PersistableResource;
 import lombok.NoArgsConstructor;
 
@@ -45,6 +46,19 @@ public final class ResourceStackFactory {
              nonNull(parentClazz);
              parentClazz = parentClazz.getParentClazz()) {
             resources.push(PersistableResource.get(parentClazz, persistence));
+        }
+
+        return resources;
+    }
+
+    public static Stack<Resource> createResourceStack(Resource resource) {
+        Stack<Resource> resources = new Stack<>();
+        resources.push(resource);
+
+        for (Clazz parentClazz = resource.getClazz().getParentClazz();
+             nonNull(parentClazz);
+             parentClazz = parentClazz.getParentClazz()) {
+            resources.push(NonPersistableResource.get(parentClazz));
         }
 
         return resources;

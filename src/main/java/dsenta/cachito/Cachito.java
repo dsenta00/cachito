@@ -10,7 +10,11 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor(access = PRIVATE)
 public final class Cachito {
 
-    public static PersistableCachitoBuilder persistence(Persistence persistence) {
+    public static PersistableCachitoBuilder cache() {
+        return new PersistableCachitoBuilder();
+    }
+
+    public static PersistableCachitoBuilder persistable(Persistence persistence) {
         return PersistableCachitoBuilder.builder()
                 .persistence(persistence)
                 .build();

@@ -11,6 +11,7 @@ import dsenta.cachito.model.dimension.Dimension;
 import dsenta.cachito.model.objectinstance.ObjectInstance;
 import dsenta.cachito.model.persistence.Persistence;
 import dsenta.cachito.model.resource.Resource;
+import dsenta.cachito.repository.resource.NonPersistableResource;
 import dsenta.cachito.repository.resource.PersistableResource;
 import dsenta.cachito.utils.DateIso8601;
 import lombok.NoArgsConstructor;
@@ -41,19 +42,37 @@ public final class AttributeHandler {
 
     public static void removeIdFromRelatedResourceDimensions(Resource resource, Long id, Persistence persistence) {
         for (Clazz clazz : ClazzCache.stream().getRelatedClazzes(resource.getClazz())) {
-            var dimensions = PersistableResource.get(clazz, persistence).getDimensions();
-
-            clazz.getAttributeCollection().stream()
-                    .filter(attribute -> DataType.isRelationship(attribute.getDataType()))
-                    .filter(attribute -> resource.getClazz().compareTo(attribute.getClazz()) == 0)
-                    .forEach(attribute -> {
-                        Dimension<?> dimension = dimensions.getOrDefault(attribute.getName(), null);
-                        if (isNull(dimension)) {
-                            throw new DimensionDoesNotExistException(attribute);
-                        }
-                        dimension.getAsc().forEach(ids -> ids.remove(id));
-                    });
+            removeIdFromRelatedResourceDimension(
+                    resource,
+                    id,
+                    PersistableResource.get(clazz, persistence)
+            );
         }
+    }
+
+    public static void removeIdFromRelatedResourceDimensions(Resource resource, Long id) {
+        for (Clazz clazz : ClazzCache.stream().getRelatedClazzes(resource.getClazz())) {
+            removeIdFromRelatedResourceDimension(
+                    resource,
+                    id,
+                    NonPersistableResource.get(clazz)
+            );
+        }
+    }
+
+    private static void removeIdFromRelatedResourceDimension(Resource resource, Long id, Resource relatedResource) {
+        var dimensions = relatedResource.getDimensions();
+
+        relatedResource.getClazz().getAttributeCollection().stream()
+                .filter(attribute -> DataType.isRelationship(attribute.getDataType()))
+                .filter(attribute -> resource.getClazz().compareTo(attribute.getClazz()) == 0)
+                .forEach(attribute -> {
+                    Dimension<?> dimension = dimensions.getOrDefault(attribute.getName(), null);
+                    if (isNull(dimension)) {
+                        throw new DimensionDoesNotExistException(attribute);
+                    }
+                    dimension.getAsc().forEach(ids -> ids.remove(id));
+                });
     }
 
     public static void removeIdFromResourceDimensions(Resource resource, Long id, ObjectInstance objectInstance) {

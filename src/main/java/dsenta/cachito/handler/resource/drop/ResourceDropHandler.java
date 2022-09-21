@@ -5,6 +5,7 @@ import dsenta.cachito.exception.resource.CannotDropParentResourceException;
 import dsenta.cachito.handler.resource.delete.ResourceDeleteHandler;
 import dsenta.cachito.model.clazz.Clazz;
 import dsenta.cachito.model.persistence.Persistence;
+import dsenta.cachito.repository.resource.NonPersistableResource;
 import dsenta.cachito.repository.resource.PersistableResource;
 import lombok.NoArgsConstructor;
 
@@ -29,6 +30,23 @@ public final class ResourceDropHandler {
                 .forEach(id -> ResourceDeleteHandler.delete(resource, id, persistence));
 
         PersistableResource.drop(clazz, persistence);
+        ClazzCache.stream().delete(clazz);
+    }
+
+    public static void drop(Clazz clazz) {
+        var resource = NonPersistableResource.get(clazz);
+
+        if (ClazzCache.stream().hasChildClazzes(clazz)) {
+            throw new CannotDropParentResourceException(clazz.getName());
+        }
+
+        resource.getObjectInstances()
+                .getAsc()
+                .stream()
+                .map(Entry::getKey)
+                .forEach(id -> ResourceDeleteHandler.delete(resource, id));
+
+        NonPersistableResource.drop(clazz);
         ClazzCache.stream().delete(clazz);
     }
 

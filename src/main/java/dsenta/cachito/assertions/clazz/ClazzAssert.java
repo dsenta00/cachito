@@ -20,10 +20,9 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor(access = PRIVATE)
 public final class ClazzAssert {
 
-    public static void idDoesNotExistInChildTable(Clazz clazz, Long id, Persistence persistence) {
+    public static void idDoesNotExistInChildTable(Clazz clazz, Long id) {
         ClazzCache.stream().getChildClazzes(clazz).forEach(childClazz ->
                 Cachito.clazz(childClazz)
-                        .persistence(persistence)
                         .getById(id)
                         .ifPresent(entity -> {
                             throw new IdAlreadyExistsInChildResourceException(id, entity.getClazz().getName());
@@ -31,21 +30,30 @@ public final class ClazzAssert {
         );
     }
 
-    public static void canCreate(Clazz inputClazz, Persistence persistence) {
-        for (Clazz clazz = inputClazz.getParentClazz(); Objects.nonNull(clazz); clazz = clazz.getParentClazz()) {
-            clazz.getAttributeCollection().forEach(parentAttribute -> {
-                Optional<Attribute> attributeOptional = inputClazz.getAttribute(parentAttribute.getName());
-                if (attributeOptional.isPresent()) {
-                    Attribute attribute = attributeOptional.get();
-                    if (!attribute.getDataType().equals(parentAttribute.getDataType())) {
-                        throw new CannotOverrideDataTypeException(parentAttribute, attribute.getDataType());
-                    }
-                }
-            });
-        }
+    public static void idDoesNotExistInChildTable(Clazz clazz, Long id, Persistence persistence) {
+        ClazzCache.stream().getChildClazzes(clazz).forEach(childClazz ->
+                Cachito.clazz(childClazz)
+                        .persistable(persistence)
+                        .getById(id)
+                        .ifPresent(entity -> {
+                            throw new IdAlreadyExistsInChildResourceException(id, entity.getClazz().getName());
+                        })
+        );
+    }
 
-        for (Attribute attributeToAdd : inputClazz.getAttributeCollection()) {
-            AttributeAssert.canAddAttribute(inputClazz, attributeToAdd, persistence);
+    public static void canCreate(Clazz clazz) {
+        checkAttributeWithSameNameInParentResources(clazz);
+
+        for (Attribute attributeToAdd : clazz.getAttributeCollection()) {
+            AttributeAssert.canAddAttribute(clazz, attributeToAdd);
+        }
+    }
+
+    public static void canCreate(Clazz clazz, Persistence persistence) {
+        checkAttributeWithSameNameInParentResources(clazz);
+
+        for (Attribute attributeToAdd : clazz.getAttributeCollection()) {
+            AttributeAssert.canAddAttribute(clazz, attributeToAdd, persistence);
         }
     }
 
@@ -59,5 +67,19 @@ public final class ClazzAssert {
         canUpdateAttributes(clazz, fieldsToUpdate, persistence);
         canDeleteAttributes(clazz, fieldsToDelete);
         canAddAttributes(clazz, fieldsToAdd, persistence);
+    }
+
+    private static void checkAttributeWithSameNameInParentResources(Clazz inputClazz) {
+        for (Clazz clazz = inputClazz.getParentClazz(); Objects.nonNull(clazz); clazz = clazz.getParentClazz()) {
+            clazz.getAttributeCollection().forEach(parentAttribute -> {
+                Optional<Attribute> attributeOptional = inputClazz.getAttribute(parentAttribute.getName());
+                if (attributeOptional.isPresent()) {
+                    Attribute attribute = attributeOptional.get();
+                    if (!attribute.getDataType().equals(parentAttribute.getDataType())) {
+                        throw new CannotOverrideDataTypeException(parentAttribute, attribute.getDataType());
+                    }
+                }
+            });
+        }
     }
 }

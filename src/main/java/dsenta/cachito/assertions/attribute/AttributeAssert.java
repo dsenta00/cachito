@@ -8,6 +8,7 @@ import dsenta.cachito.exception.resource.NotDefinedResourceForRelationshipExcept
 import dsenta.cachito.model.attribute.Attribute;
 import dsenta.cachito.model.clazz.Clazz;
 import dsenta.cachito.model.persistence.Persistence;
+import dsenta.cachito.repository.resource.NonPersistableResource;
 import dsenta.cachito.repository.resource.PersistableResource;
 import lombok.NoArgsConstructor;
 
@@ -29,6 +30,42 @@ public final class AttributeAssert {
 
         for (Attribute fieldToAdd : fieldsToAdd) {
             canAddAttribute(clazz, fieldToAdd, persistence);
+        }
+    }
+
+    public static void canAddAttribute(Clazz clazz, Attribute fieldToAdd) {
+        switch (fieldToAdd.getDataType()) {
+            case BOOLEAN:
+                if (isNull(fieldToAdd.getDefaultValue())) {
+                    fieldToAdd.setDefaultValue(false);
+                }
+                break;
+            case INTEGER:
+                if (isNull(fieldToAdd.getDefaultValue())) {
+                    fieldToAdd.setDefaultValue(0L);
+                }
+                break;
+            case FLOAT:
+                if (isNull(fieldToAdd.getDefaultValue())) {
+                    fieldToAdd.setDefaultValue(0.0);
+                }
+                break;
+            case STRING:
+                if (isNull(fieldToAdd.getDefaultValue())) {
+                    fieldToAdd.setDefaultValue("");
+                }
+                break;
+            case DATE:
+                if (isNull(fieldToAdd.getDefaultValue())) {
+                    fieldToAdd.setDefaultValue(NOW);
+                }
+                break;
+            case RELATIONSHIP_ZERO_ONE:
+            case RELATIONSHIP_ONE:
+            case RELATIONSHIP_ZERO_MANY:
+            case RELATIONSHIP_ONE_MANY:
+                canCreateRelationshipAttribute(clazz, fieldToAdd);
+                break;
         }
     }
 
@@ -188,6 +225,10 @@ public final class AttributeAssert {
     public static void canCreateRelationshipAttribute(Clazz clazz,
                                                       Attribute targetCreate,
                                                       Persistence persistence) {
+        if (clazz.isSimple()) {
+            return;
+        }
+
         if (isNull(targetCreate.getClazz())) {
             throw new NotDefinedResourceForRelationshipException(targetCreate);
         }
@@ -206,6 +247,33 @@ public final class AttributeAssert {
             }
 
             PersistableResource.get(targetCreate.getClazz(), persistence);
+        }
+    }
+
+    // TODO extract common from both methods
+    public static void canCreateRelationshipAttribute(Clazz clazz, Attribute targetCreate) {
+        if (clazz.isSimple()) {
+            return;
+        }
+
+        if (isNull(targetCreate.getClazz())) {
+            throw new NotDefinedResourceForRelationshipException(targetCreate);
+        }
+
+        if (targetCreate.getClazz().compareTo(clazz) == 0) {
+            switch (targetCreate.getDataType()) {
+                case RELATIONSHIP_ZERO_ONE:
+                case RELATIONSHIP_ZERO_MANY:
+                    break;
+                default:
+                    throw new CannotAddRequiredRelationshipToTheSameResourceException(targetCreate);
+            }
+        } else {
+            if (targetCreate.isUnique()) {
+                throw new CannotAddUniqueConstraintToRelationshipException(targetCreate);
+            }
+
+            NonPersistableResource.get(targetCreate.getClazz());
         }
     }
 
