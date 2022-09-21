@@ -13,7 +13,7 @@
 
 	<groupId>dsenta</groupId>
 	<artifactId>cachito</artifactId>
-	<version>0.1.2</version>
+	<version>0.1.3</version>
 	<name>cachito</name>
 	<description>Queryable and streamable cache</description>
 

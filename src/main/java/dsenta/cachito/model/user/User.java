@@ -1,6 +1,5 @@
 package dsenta.cachito.model.user;
 
-import dsenta.cachito.model.leakybucket.LeakyBucket;
 import dsenta.cachito.model.schema.Schema;
 import dsenta.queryablemap.trie.Trie;
 import lombok.AllArgsConstructor;
@@ -18,7 +17,6 @@ public class User implements Serializable {
     private String username;
     private String password;
     private Map<String, Schema> schemaMap = new Trie<>();
-    private LeakyBucket leakyBucket;
 
     public User(String username, String password) {
         setUsername(username);
