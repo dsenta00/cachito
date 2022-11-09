@@ -1,9 +1,9 @@
 package dsenta.cachito.handler.resource.delete;
 
-import dsenta.cachito.handler.attribute.AttributeHandler_Simple;
 import dsenta.cachito.model.resource.Resource;
 import lombok.NoArgsConstructor;
 
+import static dsenta.cachito.handler.attribute.AttributeHandler_Simple.removeIdFromResourceDimensions;
 import static java.util.Objects.isNull;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -17,7 +17,7 @@ public final class ResourceDeleteHandler_Simple {
             return;
         }
 
-        AttributeHandler_Simple.removeIdFromResourceDimensions(resource, id, entry.getValue());
+        removeIdFromResourceDimensions(resource, id, entry.getValue());
         resource.getObjectInstances().remove(id);
     }
 }
