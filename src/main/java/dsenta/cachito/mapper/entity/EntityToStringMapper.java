@@ -73,7 +73,7 @@ public final class EntityToStringMapper {
             case DATE:
                 return "\"" + DateIso8601.toString((Date) entity.getAttributeValue(attribute.getName())) + "\"";
             case RELATIONSHIP_ZERO_ONE:
-            case RELATIONSHIP_ONE:
+            case RELATIONSHIP_ONE: {
                 List<Entity> relatedEntities = entity.getRelatedEntitiesByFieldIndex().get(attribute.getPropertyIndex());
 
                 if (isNull(relatedEntities) || relatedEntities.isEmpty()) {
@@ -81,10 +81,12 @@ public final class EntityToStringMapper {
                 } else {
                     return toString(relatedEntities.get(0));
                 }
+            }
             case RELATIONSHIP_ZERO_MANY:
-            case RELATIONSHIP_ONE_MANY:
-                relatedEntities = entity.getRelatedEntitiesByFieldIndex().get(attribute.getPropertyIndex());
+            case RELATIONSHIP_ONE_MANY: {
+                List<Entity> relatedEntities = entity.getRelatedEntitiesByFieldIndex().get(attribute.getPropertyIndex());
                 return toString(relatedEntities);
+            }
             default:
                 return "null";
         }
